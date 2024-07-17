@@ -1,0 +1,1328 @@
+AWS solutions Architect Associate
+
+IaaS -> Infra como serviço, paga para utilizar a infra da aws, usado como serviço
+	você gerencia -> Applications, data, runtime, middleware, S.O
+	AWS gerencia  -> Virtualização, serves, storage, networking
+	
+	ex.: instâncias EC2
+
+Paas -> Plataforma como serviço
+	você gerencia -> Applications, data
+	AWS gerencia  -> runtime, middleware, S.O, Virtualização, serves, storage, networking
+
+	ex.: elastic beanstalk
+
+SaaS -> software como serviço 
+	você gerencia -> nada
+	AWS gerencia  -> Applications, data, runtime, middleware, S.O, Virtualização, serves, storage, networking
+
+	ex.: CRM, OFFICE 365, GMAIL
+
+---------------------------
+
+Public cloud -> Aws, neste caso, qualquer um com interesse em usar os serviços da aws
+
+Hybrid cloud -> publico + privado, serviços no público, mas assuntos mais sigilosos estão no privado
+
+Private cloud -> servidor privado com um custo mais elevado
+
+---------------------------
+
+AWS Wavelength
+* Permite aos desenvolvedores criar aplicativos com latências inferiores a 10 milissegundos para dispositivos móveis e usuários finais.
+* incorpora serviços de computação e armazenamento da aws em redes 5G, fornecendo infraestrutura de computação móvel de ponta para desenvolver, implantar e dimensionar aplicativos de latência ultrabaixa
+---------------------------
+
+AWS outposts
+* Com o AWS Outposts, você pode executar alguns produtos da AWS localmente e se conectar a uma ampla gama de serviços disponíveis na região local da AWS
+* O outposts traz  data center da AWS diretamente para você, no local. O outposts permite que você tenha uma grande variedade de serviços aws em seu data center. Você pode ter outposts em tamanhos como 
+  servidores de 1U e 2U até racks de 42U e implantações de vários racks.
+
+Benefícios:
+* nuvem híbrida: crie uma nuvem híbrida onde você possa aproveitar os serviços da aws dentro do seu próprio data center.
+* infraestrutura totalmente gerenciada: a aws pode gerenciar a infraestrutura para você. Você não precisa de uma equipe dedicada para cuidar da infraestrutura de outposts.
+* consistência: leve o aws management console, as APIs e os SDKs para o seu data center, permitindo consistência uniforme no seu ambiente híbrido.
+
+Membro da família outposts
+* Outposts rack
+  * hardware: disponível começando com um único rack de 42U e ampliando até 96 racks
+  * serviços: fornece computação, armazenamento, banco de dados e outros serviços da aws localmente
+  * resultados: oferece a mesma infraestrutura, serviços e APIs da aws em seu próprio data center
+
+* Outposts Serves
+  * hardware: servidores individuais em formato 1U ou 2U
+  * casos de uso: útil para requisitos de espaço pequeno, como lojas de varejo, filiais, locais de prestação de serviços de saúde ou chão de fábrica
+  * resultado: fornece serviços locais de computação e rede
+
+Processo
+* pedido: faça login no aws management console e solicite a configuração do outposts.
+* instalar: a equipe da aws estará no local para instalar e implantar o hardware, incluindo energia, rede e conectividade
+* lançamento: usando o aws management console, você pode executar instâncias no outposts no local.
+* build: comece a construir seu ambiente aws local
+---------------------------
+
+IAM: identity and Access Management - global service
+é possível chegar no iam das seguintes formas: console, cli, api
+O iam permite gerenciar usuários e seu nível de acesso ao console AWS.
+Podemos gerenciar as políticas como:  IBP e RBP e depois poder criar os serviços, exemplo : ec2, s3 
+ * crie usuários e conceda permissões a eles.
+ * crie grupos e funções
+ * controle o acesso aos recursos da AWS
+
+Protegendo a conta root
+  * habilite a autenticação de dois fatores
+  * crie um grupo de administradores para seus administradores e atribua as permissões apropriadas a esse grupo.
+  * crie contas de usuário para seus administradores
+  * adicione seus usuários ao grupo de administradores
+
+Como controlamos as permissões usando o IAM ?
+* atribuímos permissões usando documentos de política, que são compostos de JSON
+
+documento de política do IAM
+* grupos, funções
+  |----> usuários (alerta: é uma boa prática o usuário herdar a política do grupo para ficar fácil de gerenciar)
+
+identity policy vs resource policy
+
+identity policy: user -> política de inline 1 para 1 -> role, não conseguimos aplicar a inline para um grupo por que afeta mais de um.
+		 aws manged ou customer manage por ser aplicada para um user para um grupo e para role
+
+resource policy: aplica para um recurso, exemplo: s3, ec2, o guilherme pode fazer upload no s3 ou um shutdown no ec2
+
+==================================================================================
+
+S3 -> simple storage servisse
+
+exemplos de URLs S3:
+ https://bucket-name.s3.Region.amazonaws.com/key-name
+ https://acloudguru.s3.us-east-1.amazonaws.com/Ralphie.jpg
+
+Fazendo upload de arquivos
+* Ao fazer upload de um arquivo para um bucket, você receberá um código HTTP 200 se o upload for bem sucedido.
+
+S3 Standard : oferece um armazenamento de objetos com altos níveis de resiliência, disponibilidade e performance para dados acessados com frequência.
+	      * Armazenamento de uso geral para dados acessados com frequência	
+              *	Performance com baixa latência e alto throughput
+              * Projetado para oferecer disponibilidade de 99,99% com um SLA de disponibilidade de 99,9%
+	      * Durabilidade 99.999999999%
+              * casos de uso -> como aplicações na nuvem, sites dinâmicos, distribuição de conteúdo, aplicações móveis e de jogos e análise de big data. 
+	      * tamanho mínimo 1 byte e tamanho máximo 5TB
+	      * dados são armazenados de forma redundante em vários dispositivos em diversas instalações (>=3 AZs)
+
+S3 Intelligent-Tiering: Move automaticamente seus dados para o nível mais econômico com base na frequência com que você acessa cada objeto
+		* disponibilidade de 99,9% 
+		* durabilidade de 99.99999999999%
+
+
+S3 Express One Zone: é uma classe de armazenamento de alta performance com zona de disponibilidade única criada especificamente para oferecer acesso 		       consistente a dados na velocidade de um dígito em milissegundos para seus dados acessados com mais frequência e aplicações sensíveis à 		       latência.
+
+S3 Standard-Infrequent Access (S3 Standard-IA): O S3 Standard-IA é indicado para dados acessados com menos frequência, mas que exigem acesso rápido quando 		necessários. 
+
+		exemplo:
+		* acesso rápido: usado para dados acessados com menos frequência, mas que exigem acesso rápido quando necessário
+		* você paga para acessar os dados: há um preço baixo de armazenamento por GB e uma taxa de recuperação por GB
+		* casos de uso: ótimo para armazenamento de longo prazo, backups e como armazenamento de dados para arquivos de recuperação de desastres
+
+S3 One Zone-Infrequent Access (S3 One Zone-IA): O S3 One Zone-IA é indicado para dados acessados com menos frequência, mas que exigem acesso rápido quando 		necessários. Ao contrário de outras classes de armazenamento do S3, que armazenam dados em no mínimo três Zonas de disponibilidade (AZs), a 		S3 One Zone-IA armazena dados em uma única AZ, com um custo 20% inferior ao S3 Standard-IA.
+
+		exemplo:
+		Dados recriáveis acessados com pouca frequência
+		A mesma performance de baixa latência e alto throughput da categoria S3 Standard
+		Projetado para oferecer disponibilidade de 99,5% com um SLA de disponibilidade de 99%
+
+S3 Glacier Instant Retrieval: A Amazon S3 Glacier Instant Retrieval é uma classe de armazenamento de arquivos que oferece o armazenamento de custo mais 		baixo para dados de longa duração, que raramente são acessados e exigem recuperação em milissegundos.
+		
+		exemplo:
+		Dados de longa duração que são acessados algumas vezes por ano com recuperações instantâneas
+		Recuperação de dados em milissegundos com a mesma performance do S3 Standard
+		Projetado para oferecer disponibilidade de 99,9% com um SLA de disponibilidade de 99%
+		128 KB de tamanho mínimo do objeto
+		API PUT do S3 para uploads diretos ao S3 Glacier Instant Retrieval e gerenciamento do S3 Lifecycle para migração automática de objetos
+
+Glacier Flexible Retrieval (anteriormente S3 Glacier): classe de armazenamento ideal para dados arquivados que não exigem acesso imediato, mas precisam de 
+		flexibilidade para recuperar grandes conjuntos de dados sem nenhum custo, como casos de uso de backup ou recuperação de desastres. Pode 
+		durar minutos ou até 12 horas.
+	
+
+S3 Glacier Deep Archive: classe de armazenamento mais barata e projetada para clientes que retêm conjuntos de dados por 7 a 10 anos ou mais para atender
+		as necessidades do cliente e aos requisitos de conformidade regulatória. O tempo de recuperação padrão é de 12 horas e o tempo de 
+		recuperação em massa é de 48 horas
+
+
+
+S3 no Outposts: O Amazon S3 on Outposts oferece armazenamento de objetos para seu ambiente de AWS Outposts on-premises. Usando as APIs S3 e os recursos 		disponíveis nas regiões da AWS hoje, o S3 on Outposts torna mais fácil armazenar e recuperar dados em seu Outpost, bem como proteger os 		dados, controlar o acesso, marcar e gerar relatórios sobre eles.
+
+		exemplo:
+		Compatibilidade de objetos do S3 e gerenciamento de bucket via SDK do S3
+		Projetado para armazenar dados de maneira duradoura e redundante em seus Outposts
+		Criptografia usando SSE-S3 e SSE-C
+		Autenticação e autorização usando IAM e pontos de acesso S3
+		Transferir dados para regiões AWS usando AWS DataSync
+		Ações de expiração de ciclo de vida do S3
+
+DICA PARA A PROVA
+* Os buckets são privados por padrão: quando você cria um bucket do S3, ele é privado por padrão (incluindo todos os objetos dentro dele). Você deve permitir o acesso ao bucket e a seus objetos para tornar o bucket público.
+
+* ACLs de objeto: você pode tornar públicos objetos individuais usando ACLs de objeto.
+* Políticas de bucket: você pode tornar públicos todo o bucket usando politicas de bucket
+* Código de status HTTP: ao fazer upload de um objeto para o S3 e ele for bem sucedido, você receberá um código HTTP 200
+
+S3 é dimensionado automaticamente para atender a demanda. Muitas empresas colocarão sites estáticos no s3 quando acharem que haverá um grande número de solicitações (por exemplo, para uma prévia de um filme).
+
+
+--------------------------------------------------
+Protegendo seus dados
+
+* criptografia do lado do servidor: você pode definir a criptografia padrão em um bucket para criptografar todos os novos objetos quando eles foram
+  armazenados no bucket
+* listas de controle de acesso (ACLs): defina quais contas ou grupos da aws terão acesso e o tipo de acesso. Você pode anexar ACLs do S3 a objetos
+  individuais em um bucket
+* Bucket policies: as políticas de bucket S3 especificam quais ações são permitidas ou negadas (por exemplo, que o user Alice coloque, mas não delete
+  objetos no bucket).
+
+--------------------------------------------------
+Vantagens do Versionamento do S3
+* todas as versões: todas as versões de um objeto são armazenados no s3. isso inclui todas as gravações e até mesmo se você excluir um objeto
+* Backup: pode ser ótima ferramenta de backup
+* não pode ser desativado: uma vez ativado, o versionamento não pode ser desativado, - apenas suspenso
+* regas de clico de vida: pode ser integrado as regras do ciclo de vida
+* suporta MFA: pode suportar autenticação de dois fatores
+--------------------------------------------------
+Gerenciamento de lifecycle
+* O gerenciamento do ciclo de vida automatiza a movimentação de seus objetos entre as diferentes camadas de armazenamento, maximizando assim a relação custo benefício
+
+S3 Standard                   S3 IA             Glacier
+     |                          |                  |
+manter por 30 dias          após 30 dias        após 90 dias
+
+combinando gerenciamento do ciclo de vida com controle de versão
+* você pode usar o gerenciamento de ciclo de vida para mover diferentes versões de objetos para diferentes níveis de armazenamento.
+* pode ser aplicado para versões atuais e versões anteriores.
+
+
+--------------------------------------------------
+S3 object Lock/bloqueio de objeto do s3
+
+* você pode usar o s3 object lock para armazenar objetos usando um modelo de gravação único e leitura múltipla(WORM). Pode ajudar a evitar que objetos
+  sejam excluídos ou modificados por um período fixo ou indefinidamente.
+* Você pode usar o S3 object lock para atender aos requisitos regulatórios que exigem armazenamento WORM ou adicionar uma camada extra de proteção contra
+  alterações e exclusões de objetos.
+
+Modo Governança
+* No modo de governança, os utilizadores não podem substituir ou eliminar uma versão de objeto ou alterar as suas definições de bloqueio, a menos que tenham
+  permissões especiais
+* Com o modo de governança, você protege os objetos contra exclusão pela maioria dos usuários, mas ainda pode conceder permissão a alguns usuários para
+  alterar as configurações de retenção ou excluir o objeto, se necessário.
+
+Modo de conformidade
+* No modo de conformidade, uma versão de objeto protegido não pode ser substituída ou excluída por nenhum usuário, incluindo o usuário root na sua conta 
+  da AWS. Quando um objeto está bloqueado no modo de conformidade, seu modo de retenção não pode ser alterado e seu período de retenção não pode ser
+  reduzido. O modo de conformidade garante que uma versão do objeto não possa ser substituída ou excluída durante o período de retenção
+
+Período de retenção
+* um período de retenção protege uma versão do objeto por um período fixo de tempo. Quando você coloca um período de retenção em um versão do objeto, o 
+  amazona s3 armazena um carimbo de data/hora nos metadado da versão do objeto para indicar quando o período de retenção expira.
+* Depois que o período de retenção expirar, a versão do objeto poderá ser substituída ou excluída, a menos que você também tenha colocado uma retenção legal
+  na versão do objeto.
+
+Retenção Legais
+* O s3 object lock também permite colocar uma retenção legal em uma versão do objeto. Assim como um período de retenção, uma retenção legal impede que uma
+  versão do objeto seja substituída ou excluída. No entanto, uma retenção legal não tem um período de retenção associado e permanece em vigor até ser 
+  removida. As retenções legais podem ser colocadas e removidas livremente por qualquer usuário que tenha a permissão s3:PutObjectLegalHold
+
+Glacier Vault Lock
+* O s3 glacier vault lock permite implantar e impor facilmente controles de conformidade para s3 glacier vaults com uma politica de bloqueio de vault. 
+  Você pode especificar controles, como WORM, em um politica de bloqueio de vault e bloquear a politica contra edições futuras. Depois de bloqueada, a 
+  politica não poderá mais ser alterada.
+--------------------------------------------------
+criptografia do S3
+Encryption in transit: SSL/TLS, HTTPS
+
+server-side encryption 
+ * Todos os buckets do s3 têm criptografia por padrão. Todos os objetos são criptografados automaticamente usando criptografia server-side encryption com 
+   chaves gerenciadas do s3 (SSE-S3)
+ * SSE-S3 - acontece do lado da bucket, encriptado no momento que é mandado para bucket, quando feito download é decriptado.
+         - s3 gerencia as chaves
+	 - usa AES 256-bit encryption
+
+ * SSE-KMS - criptografia gerenciado pelo serviço do KMS 
+	   - aqui o serviço KMS gerencia sua chave
+
+ * SSE-C (client) - Aqui o cliente gerencia suas chaves de criptografia
+                  - cliente fornece a chave de criptografia
+
+cliente-side encryption
+ * CSE - o cliente encripta os arquivos antes de enviar e quando é feito do download o cliente tem que decriptar
+       - chaves são armazenadas pelo cliente
+
+ Enforcing Encryption
+ * aplicando criptografia com uma politica de bucket
+ * uma politica de bucket pode negar todas as solicitações PUT que não incluam o parâmetro x-amz-server-side-encryption no cabeçalho da solicitação.
+
+
+--------------------------------------------------
+
+S3 Reduced Redundancy Storage - O Reduced Redundancy Storage (RRS) é uma opção de armazenamento do Amazon S3 que permite aos clientes armazenar dados reproduzíveis e que não sejam de fundamental importância com níveis de redundância mais baixos do que o armazenamento padrão do Amazon S3.
+
+   - Disponibilidade amparada pelo Acordo de Nível de Serviço do Amazon S3
+   - Projetado para fornecer 99,99% de durabilidade e 99,99% de disponibilidade de objetos em um determinado ano. Esse nível de durabilidade corresponde a uma perda anual esperada média de 0,01% de objetos.
+   - Projetado para sustentar a perda de dados em uma única instalação.
+
+
+--------------------------------------------------
+Otimizando o desempenho do S3
+
+KMS request rates/taxa de solicitação KMS
+  * O upload/download contará para a cota KMS
+  * atualmente, não é possível solicitar um aumento de cota para o KMS
+  * no entanto, epecifico da região, são 5500, 10000 ou 30000 solicitações por segundo
+
+S3 performance:Uploads
+
+  Multipart Uploads/uploads fracionados
+  * recomendado para arquivos com mais de 100 MB
+  * obrigatório para arquivos com mais de 5 GB
+  * paralelize uploads (aumenta a eficiência)
+
+  Transferir arquivos com falha na rede -> usar o multipart upload para o Amazon S3
+  * Você pode usar um multipart upload para fazer upload de arquivos maiores, como os arquivos nesse cenário. Se a transmissão de alguma parte falhar, 
+    você poderá retransmitir essa parte sem afetar as outras.
+
+S3 performance:Downloads
+ S3 byte-range fetches/buscas de intervalo de bytes S3
+  * paralelize downloads especificando intervalos de bytes
+  * se houver falha no download, é apenas para um intervalo de bytes especifico
+  * exemplo, arquivo de 5 GB pode baixar 1 GB por vez 
+
+--------------------------------------------------
+Replicaçõ S3
+* você pode replicar objetos de um bucket para outro, o controle de versão deve estar habilitado nos buckets de origem e de destino
+* os objetos em um bucket existente não são replicados automaticamente, depois que a replicação for ativada, todos os objetos atualizados subsequentes
+  serão replicados automaticamente
+* os marcadores de exclusão não são replicados por padrão, a exclusão de versões individuais ou de exclusão de marcadores não será replicada
+==================================================================================
+
+>>>EC2<<<
+Definição de valores
+
+on-demand -> pague por hora ou segundo, dependendo do tipo de instância que você executa
+  * Flexível: baixo custo e flexibilidade do amazona EC2 sem qualquer pagamento antecipado ou compromisso de longo prazo
+  * curto prazo: aplicativos com cargas de trabalho de curto prazo, imprevisíveis que não podem ser interrompidas.
+  * Testing the water: aplicativos sendo desenvolvidos ou testados no amazona EC2 pela primeira vez.
+
+reservadas -> 1 a 3 anos, desconto de até 72% na cobrança por hora
+  * uso previsível: aplicativos com estado estacionário ou uso previsível
+  * requisitos específicos de capacidade: aplicativos que exigem capacidade reservada
+  * pague adiantado: você pode fazer pagamentos adiantados para reduzir ainda mais os custos totais de computação
+  * standard RIs: até 72% de desconto no preço sob demanda
+  * convertible RIs: até 54% de desconto no preço sob demanda. Tem a opção de alterar para um tipo de RI diferente de valor igual ou superior
+  * Scheduled RIs: inicie dentro da janela de tempo que você definir. Combine sua reserva de capacidade com uma programação recorrente previsível que requer
+    apenas uma fração de dia, semana ou mês.
+
+spot instance -> esquema de leilão, aws pode ou não aceitar a proposta, 90% de desconto, pode ser terminada a qualquer momento, usada para máquina de teste.
+  * renderização de imagem, seguenciamento genômico, mecanismos de negociação algorítmicos.
+  * usuários com necessidade de urgência de grandes quantidades de capacidade computacional adicional.
+  * aplicativos com horários de inicio e termino flexíveis. 
+  * aplicativos que só são viáveis com preços de computação muito baixos.
+
+instância dedicada -> um servidor ec2 físico dedicado para seu uso. A opção mais cara.
+
+hosts dedicados -> 
+  * conformidade: requisitos regulatórios que podem não oferecer suporte à virtualização
+  * licenciamento: ótimo para licenciamento que não suporta multilocação ou implantações em nuvem.
+  * on-demand: pode ser adquirido sob demanda (por hora)
+  * reserved: pode ser adquirido como reserva com até 70% de desconto no preço sob demanda
+  * Dicas para prova: qualquer pergunta que fale sobre requisitos especiais de licenciamento
+    Um host dedicado do amazona EC2 é um servidor físico com capacidade de instância do EC2 totalmente dedicada ao seu uso. Hosts dedicados permitem que
+    você use licenças de software existentes por soquete, por núcleo ou por VM, incluindo Windows server, Microsoft SQL server e suse Linux enterprise 
+    server.
+saving plans com reserved instances ->
+  * economize até 72%: todo o uso de computação da AWS, independentemente do tipo de instância ou região.
+  * comprometa-se com 1 ou 3 anos: comprometa-se a usar uma quantidade específica de capacidade de computação (medida por hora) por um período de 1 ou 
+    3 anos.
+  * super flexível: não apenas ec2, isso também inclui tecnologias sem servidor como lambda ou fargate.
+
+--------------------------------------------------
+Recuperando metadados
+curl -X PUT "http://169.254.169.254"
+
+Dados de usuário VS. metadados
+* Os dados do usuário são simplesmente scripts de bootstrap
+* Metadados são dados sobre suas instâncias EC2
+* você pode usar scripts de bootstrap (dados do usuário) para acessar metadados.
+
+Qual comando na instância do EC2 para coletar os metadados do sistema?
+  curl http://169.254.169.254/latest/meta-data/
+--------------------------------------------------
+
+INSTANCE LIFECYLE
+o iam vai ter permitirar ou não permitir criar a instância
+
+    iam ->  pending <-----------------
+	        |                     |
+rebooting <- running -> stopping -> stoped
+	  ->    |                     |
+            shutdown                  |
+	        |                     |
+	    terminated <--------------
+
+stopping -> paga pelo ebs atrelado a instância, quando está em stopping, e vm é movida para outro host
+	    ipv4 e ipv6 privado, você não perde eles, mas o ip público você perde
+
+hibernating -> só para instância on-demand ou reservadas linux pode ir para o estado de hibernação
+	       você paga pela memória ram e ebs
+
+terminated -> neste estado só é possível voltar se tiver snapshot, o volume ebs é perdido
+
+--------------------------------------------------
+
+GRUPO DE POSICIONAMENTO / Placement groups
+
+acionado nas opções avançadas no momento da criação da instância, pelo nome placemet group
+têm 3 opções:
+
+cluster -> 
+  * Agrupamento de instâncias em uma única zona de disponibilidade. Recomendado para aplicativos que precisam de baixa latência de rede, alto rendimento
+    de rede ou ambos.
+  * somente determinados tipos de instância podem ser executadas em um grupo de posicionamento de cluster
+        
+disseminar/spread -> 
+  * um grupo de posicionamento de propagação é um grupo de instâncias, cada uma colocada em hardware subjacente distinto.
+  * Os spred placemente groups são recomendados para aplicativos que possuem um pequeno número de instâncias críticas que devem ser mantidas separadas
+    umas das outras.
+  * dicas para prova: usado para instâncias individuais
+
+Partition/partição -> 
+  * cada grupo de posicionamento de partição possui seu próprio conjunto de racks. Cada rack possui sua própria rede e fonte de alimentação. Não há duas
+    partições em um grupo de posicionamento que compartilhem os mesmos racks, permitindo isolar o impacto de falhas de hardware em seu aplicativo.
+  * EC2 divide cada grupo em segmentos lógicos chamados partições
+  * dica para prova: usado para múltiplas instâncias EC2, HDFS, HBase, e Cassandra
+
+DICAS: 
+* Um grupo de posicionamento de cluster não pode abranger várias zonas de disponibilidade, enquanto um grupo de posicionamento partition podem.
+* Somente determinados tipos de instâncias podem ser iniciadas em um grupo de posicionamento (otimizado para computação, otimizado para GPU, otimizado
+  para memória, otimizado para armazenamento).
+* A aws recomenda instâncias homogêneas em grupos de posicionamento de cluster
+* não é possível mesclar grupos de posicionamentos
+* você pode mover uma instância existente para um grupo de posicionamento. Antes de mover a instância, ela deverá estar no estado interrompido. Você pode
+  mover ou remover uma instância usando a aws CLI ou um aws sdk, mas ainda não pode fazer isso por meio do console.
+
+--------------------------------------------------
+
+Networking com EC2
+você pode anexar três tipos diferentes de placas de rede virtuais às suas instâncias do EC2
+
+* ENI -> interface de rede elástica, para networking básico do dia a dia
+  * simplesmente uma placa de rede virtual que permite: endereços IPv4 privados, endereços IPv4 público, endereço MAC, muitos endereços IPv6 e um ou mais
+    grupos de segurança
+  * casos de usos: crie uma rede de gestão, use dispositivos de rede e segurança em sua VPC, crie instâncias dual-homed com cargas de trabalho/funções em 
+    subnets distintas, crie uma solução de baixo orçamento e alta disponibilidade.
+
+* EN -> rede aprimorada/enhanced networkgin, usa virtualização de E/S de raiz única (SR-IOV) para fornecer alto desempenho
+  * para redes de alto desempenho entre 10 Gbps - 100 Gbps
+  * O SR-IOV fornece maior desempenho de E/S e menor utilização da CPU
+  * desempenho: fornece maior largura de banda, maior desempenho de pacotes por segundo (PPS) e latências entre instâncias consistentemente mais baixas
+  -> Dependendo do tipo de instância, a rede aprimorada pode ser habilitada usando:
+      * adaptador de rede elástica (ENA): suporta velocidades de rede de até 100 Gbps para tipos de instância compatíveis.
+      * interface de função virtual (VF) intel 82599: suporta velocidades de rede de até 10 Gbps para tipos de instância compatíveis. Normalmente usado
+        em instâncias mais antigas.
+      * Dicas para prova: Em qualquer cenário, escolha ENA em vez de interface VF
+
+* EFA -> adaptador de tecido elástico, acelera aplicativos de computação de alto desempenho (HPC) e aprendizado de máquina
+  * Um dispositivo de rede que você pode conectar a sua instância do amazona EC2 para acelerar aplicações de computação de alto desempenho (HPC) e machine
+    learning.
+  * Fornece latência mais baixa e mais consistente e maior rendimento do que o transporte TCP tradicionalmente usado em sistemas HPC baseados em nuvem.
+  * EFA pode usar OS-BYPASS: isso torna tudo muito mais rápido com latência muito menor, o OS-BYPASS permite que aplicativos de HPC e de aprendizado de 
+    máquina ignorem o kernel do sistema operacional e se comuniquem diretamente com o dispositivo EFA. Atualmente não é compatível com Windows, apenas linux
+
+==================================================================================
+
+VPC
+
+ordem:
+Região -> vpc -> az -> subnets
+lembrando, dentro de uma região tem mais de uma AZ
+
+vpc -> sistema lógico virtual criado para isolar conteúdo dentro da mesma região, uma vpc não pode participar de duas regiões ao mesmo tempo
+subnets são criadas para segmentar/separar conteúdos dentro de uma vpc
+
+dentro de uma vpc sempre tem um roteador, não é visivel para gente, serviço atribuido é a (tabela de roteamento == routing table), essa tabela consegue enxergar todas as redes no caso as subnets, e com isso podemos conversar de subnet para subnet.
+	A subnet sendo pública, temos também a rota para internet 0.0.0.0/0, neste caso o roteador acessa o internet gateway e assim sai para internet
+
+PARA TORNAR UMA SUBNET/SUBREDE PÚBLICA -> ações -> editar configurações de sub-rede -> habilitar endereço IPV4 público de atribuições automática -> salvar
+
+ligar vpc ao internet gateway -> internet gateway -> ações -> associar vpc -> escolha sua vpc -> associar gateway
+
+==================================================================================
+aws transit gateway
+
+* O AWS Transit Gateway conecta VPCs e redes locais por meio de um hub central. Com o AWS Transit Gateway, você pode adicionar rapidamente Amazon VPCs, contas da AWS, capacidade de VPN ou gateways do AWS Direct Connect para atender a uma demanda inesperada, sem ter que lidar com conexões complexas ou tabelas de roteamento massivas. Esta é a solução operacionalmente menos complexa e também econômica.
+* Isso simplifica a sua rede e põe fim a relações de peering complexas. Ele atua como um roteador de nuvem - cada nova conexão é feita apenas uma vez
+
+* permite que você tenha peering transitivo entre milhares de VPCs e data centers locais
+* funciona em um modelo hub-and-spoke
+* funciona regionalmente, mas você pode implementá-lo em várias regiões
+* você pode usá-lo em várias contas aws usando RAM (Resource access manager)
+
+dica para o exame:
+* você pode usar tabelas de rotas para limitar como as VPCs se comunicam entre si
+* funciona com direct connect e também com conexões VPN
+* suporta multicast IP (não compatível com nehum outro serviço aws)
+
+pergunta sobre como simplificar sua topologia de rede, pense em usar transit gateway
+
+==================================================================================
+stateful
+	cria regra de entrada ele já tem regra de saida
+	security group aplicado as instâncias
+
+
+stateless
+	cria regra de entrada e tem de criar regra de saida
+	network acl aplicado na subnet 
+
+
+
+VPC Peering -> comunicação entre duas vpcs
+
+
+==================================================================================
+VPC ENDPOINT
+
+* Interface endpoint (desenvolvidos por privateLink):
+	para acessar esses serviços privados da sua ec2, terá de criar um ENI - elastic network interface 
+        exemplo serviços privados: cloud formation, codeplay, private link
+
+  * Fornece um ENI(endereço IP privado) como ponto de entrada (deve anexar um grupo de segurança)
+  * Suporta a maioria dos serviços AWS
+  * $ por hora + $ por GB de dados processados
+
+* Gateway endpoint (public):
+	para acessar esses serviços públicos, terá de criar gateway endpoint
+        exemplo serviços públicos: s3 ou DynamoDB
+  * Provisiona um gateway e deve ser usado como destino em uma tabela de rotas (não usa security groups)
+  * Suporta s3 e DynamoDB
+  * FREE 
+
+* GATEWAY OU INTERFACE ENDPOINT FOR S3 ?
+  * O gateway provalvelmente será o preferido o tempo todo no exame
+  * Custo: gratuito para gateway e pago para interface endpoint
+  * O acesso preferencial do interface endpoint é em on-premises (SITE TO SITE VPN OR DIRECT CONNECT), em uma vpc diferente ou em uma região diferente
+
+--------------------------------------------------
+Network Acl
+* default network ACL: sua vpc vem automaticamente com uma ACL de rede padrão e, por padrão, permite todo o tráfego de entrada e saída.
+* custom network ACL: você pode criar ACLs de rede personalizadas. Por padrão, cada ACL de rede personalizada nega todo o tráfego de entrada e saída 
+  até que você adicione regras.
+* subnet associations: cada subnet em sua VPC deve estar associada a uma ACL de rede. Se você não associar explicitamente uma subnet a uma ACL de rede, 
+  a subnet será automaticamente associada a ACL de rede padrão.
+* Boquear endereços IP: bloqueie endereços IP usando ACLs de rede, não security groups
+
+* você pode associar uma network ACL a diversas subnets, entretando, uma subnet pode ser assiciada a apenas 1 ACL de rede por vez. Ao associar uma network 
+  ACL a uma subnet, a associação anterior é removida.
+* As ACLs de rede contêm uma lista numerada de regras que são avaliadas em ordem, começando pela regra de número mais baixo.
+* As ACLs de rede têm regras de entrada e saída separadas, e cada regra pode permitir ou negar tráfego
+* As ACLs de rede não têm estado, as respostas ao tráfego de entrada permitido estão sujeitas às regras do tráfego de saída (e vice versa)
+--------------------------------------------------
+VPC Peering
+
+* permite conectar 1 VPC a outro por meio de uma rota de rede direta usando endereços IP privados
+* as instâncias se comportam como se estivessem na mesma rede privada
+* você pode emparelhar VPCs com outras contas da aws, bem como  com outras VPCs na mesma conta
+* o peerging está em uma configuração em estrela (por exemplo, 1 vpc central emparelha com 4 outros) sem peerging transitivo
+* você pode fazer peerging entre regiões
+* sem intervalos de endereços CIDR sobrepostos
+
+--------------------------------------------------
+
+PrivateLink
+* a melhor maneira de expor uma VPC de serviço a dezenas, centenas ou milhares de VPCs de clientes
+* não requer peering de VPC, sem tabelas de rotas, NAT gateways, internet gateways, etc.
+* requer um network load balancer na vpc de serviço e uma ENI na vpc do cliente
+* se você vir uma pergunta sobre peerging de VPCs para dezenas, centenas ou milhares de VPCs de clientes, pense no aws privatelink
+
+--------------------------------------------------
+
+VPN cloudHub
+se você tiver vários sites, cada um com sua própria conexão vpn, poderá usar o Aws vpn cloudHub para conectar esses sites.
+* modelo hub-and-spoke
+* baixo custo e fácil de gerenciar
+* ele opera na internet pública, mas todo o tráfego entre o gateway do cliente e o aws vpn cloudhub é criptografado
+DICA: como você pode simplificar sua topologia de rede VPN ? pense em VPN Hub
+
+--------------------------------------------------
+Direct Connect
+* usando o aws direct connect, você pode estabelecer conectividade privada entre a aws e seu data center ou escritório.
+* em muitos casos, você pode reduzir os custos de rede, aumentar o rendimento da largura de banda e fornecer uma experiência de rede mais consistente do que conexões baseadas na internet.
+
+2 tipos de direct  connect connection
+* conexão dedicada: uma conexão ethernet física associada a um único cliente. Os clientes podem solicitar uma conexão dedicada por meio do console do aws      direct connect, da cli ou api.
+
+* conexão hospedada: uma conexão ethernet física que um parceiro da aws direct connect provisiona em nome de um cliente. Os clientes solicitam uma conexão hospedada entrando em contato com um parceiro do aws direct connect partner program, que provisiona a conexão.
+
+VPNs vs direct connect
+as vpns permitem a comunicação privada, mas ainda atravessam a internet pública para que os dados sejam entregues. Embora seguro, pode ser dolorosamente lento.
+
+direct connect é: rápido, seguro, confiável e capaz de obter um rendimento massivo
+DICA: vpn caindo e precisa reduzir custos de rede, aumentar o rendimento da sua rede é direct connect
+
+==================================================================================
+ESCALABILIDADE E ALTA DISPONIBILIDADE
+* Escalabilidade significa que uma aplicação/sistema pode lidar com cargas maiores através da adaptação.
+* Existem dois tipos de escalabilidade:
+  * Escalabilidade vertical
+  * Escalabilidade horizontal(=elasticidade)
+* A escalabilidade está vinculada, mas é diferente da alta disponibilidade
+
+ESCALABILIDADE VERTICAL
+* Escalabilidade vertical significa aumentar o tamanho da instancia
+* Por exemplo, seu aplicativo é executado em um t2.micro
+* Dimensionar esse aplicativo verticalmente significa executá-lo em um t2.large
+* A escalabilidade vertical é muito comum em sistemas não distribuídos, como banco de dados.
+* RDS e ElastiCache são serviços que podem ser dimensionados verticalmente
+* Geralmente há um limite para quanto você pode escalar verticalmente (limite de hardware)
+
+ESCALABILIDADE HORIZONTAL
+* Escalabilidade horizontal significa aumentar o número de instâncias/sistemas para sua aplicação
+* A escala horizontal implica sistemas distribuídos.
+* Isso é muito comum em aplicações web/aplicações modernas
+* É fácil escalar horizontalmente graças as ofertas de nuvem, como Amazon EC2
+
+ALTA DISPONIBILIDADE
+* Alta disponibilidade geralmente anda de mãos dadas com escalabilidade horizontal
+* Alta disponibilidade significa executar seu aplicativo/sistema em pelo menos 2 data centers(==zonas de disponibilidade)
+* O objetivo da alta disponibilidade é sobreviver a perda do data center
+* A alta disponibilidade pode ser passiva (para RDS Multi AZ, por exemplo)
+* A alta disponibilidade pode estar ativa (para escalabilidade horizontal)
+
+Alta disponibilidade e escalabilidade para EC2
+* Dimensionamento vertical: aumentar o tamanho da instância(=aumentar/diminuir)
+  * De t2.nano - 0.5G de ram, 1vCPU
+  * Para u-12tbl.metal - 12.3 TB of ram, 448 vCPUs
+* Dimensionamento horizontal: aumenta o número de instâncias (=expansão/aumento horizontal)
+  * Grupo de auto scaling
+  * load balancer
+
+* Alta disponibilidade: execute instâncias para o mesmo aplicativo em várias AZs
+  * auto scaling group multi AZ
+  * load balancer multi AZ 
+
+LOAD BALANCER
+* distribua a carga entre várias instâncias downstream
+* expor um único ponto de acesso (DNS) ao seu aplicativo
+* lidar perfeitamente com falhas de instâncias downstream
+* faça verificações de integridade regulares em suas instâncias
+* forneça terminação SSL (HTTPS) para seus sites
+* imponha a aderência com cookies
+* alta disponibilidade entre zonas
+* separar o tráfego público do tráfego privado
+* Está integrado com muitas ofertas/serviços da AWS
+  * ec2, grupos de auto scaling ec2, amazon ecs
+  * aws certificate manager (ACM), cloud watch
+  * route 53, aws awf, aws global accelerator
+
+TIPOS DE BALANCEADORES DE CARGA
+* A aws tem quatro tipos de balanceadores de carga gerenciados
+* classic load balancer(v1 - geração antiga) - 2009 -CLB
+  * HTTP, HTTPS, TCP, SSL (secure TCP)
+* Application load balancer(v2 - nova geração) - 2016 - ALB
+  * HTTP, HTTPS, WEBSOCKET
+* Network load balancer(v2 - nova geração) - 2017 - NLB
+  * TCP, TLS (SECURE TCP), UDP
+* Gateway Load Balancer - 2020 - GWLB
+  * Opera na camada 3 (camada de rede) - protocolo IP 
+* Alguns balanceadores de carga podem ser configurados como ELBs internos (privados) ou externos (públicos)
+
+Aplication Load Balancer/ALB(v2)
+(detalhado e inteligente)
+* Application load balancer atua na camada 7(http)
+* Balanceamento de carga para vários aplicativos HTTP em máquinas (grupo alvo)
+* Balanceamento de carga para vários aplicativos na mesma máquina (ex.: contêineres)
+* suporte para http/2 e websocket
+* suporte a direcionamentos (de http para https, por exemplo)
+* são ideais para microsserviços e aplicativos baseados em contêiner (ex.: docker e amazon ecs)
+
+GRUPOS DE DESTINO DO APPLICATION LOAD BALANCER(V2)
+* instâncias ec2 (podem ser gerenciadas por um grupo de auto scaling) - http
+* tarefas do ecs (gerenciadas pelo próprio ecs) - http
+* funções lambda - a solicitação http é traduzida em um evento JSON
+* endereço IP - devem ser IPs privados
+* o alb pode rotear para vários grupos-alvo
+* os health checks são realizados no nível do grupo alvo
+
+
+* routing -> path-based
+	  -> host-based
+apontar -> instância
+	-> ip address
+	-> lambda
+	-> containers
+	-> target
+----------------------------------------------------------
+Network load balancer/NLB
+* Balanceadores de carga de rede(camada 4) permitem:
+  * encaminhar tráfego TCP e UDP para suas instâncias
+  * lidar com milhões de solicitações por segundo
+  * menos latência ~ 100 ms (vs 400 ms para ALB)
+* O NLB tem um IP estático por AZ e oferece suporte à atribuição de IP elástico (útil para colocar IP específico na lista de permissãoes)
+* NLB são usados para desempenho extremo, tráfego TCP ou UDP
+ * não inclui no nível gratuito da AWS
+
+* Network load balancer - Target groups
+ * instâncias EC2
+ * endereços IP - deve ser IPs privados
+ * Application load balancer
+ * as verificações de integridade suportam os protocolos TCP, HTTP e HTTPS
+
+----------------------------------------------------------
+Gateway Load Balancer
+ * deploy, dimensione e gerencie uma frota de dispositivos virtuais de rede de terceiros na AWS
+ * Exemplo: Firewalls, sistemas de detecção e prevenção de intrusões, sistemas de inspeção profunda de pacotes, manipulação de carga util.
+* Opera na camada 3 (camada de rede) - pacotes de IP
+* Combina as seguintes funções:
+ * gateway de rede transparente - entrada/saida única para todo tráfego
+ * load balancer - distribui tráfego para seus dispositivos virtuais
+* Usa o protocolo GENEVE na porta 6081
+
+* Gateway load balancer - Target groups
+ * instâncias EC2
+ * endereços IP - deve ser IPs privados
+
+----------------------------------------------------------
+SSL/TLS - Basic
+* Um certificado SSL permite que o tráfego entre seus clientes e seu balanceador de carga seja criptografado em trânsito (criptografia em trânsito)
+* SSL refere-se secure sockets layer, usado para criptografar conexões 
+* TLS refere-se ao transport layer security, que é uma versão mais recente
+* Hoje em dia, os certificados TLS são usados principalmente, mas as pessoas ainda se referen como SSL
+* Certificados SSL públicos são emitidos por autoridades de certificação (CA)
+* COMODO, SYmantec, GoDaddy, gloablsign, digicert, letsencrypt, etc
+* os certificados SSL têm uma data de validade (você define) e devem ser renovados
+
+Load Balancer - SSL Certificates
+* O balanceador de carga usa um certificado x.509 (certificado de servidor SSL/TLS)
+* você pode gerenciar certificados usando ACM (AWS certificate manager)
+* você pode criar e carregar seus próprios certificados como alternativa
+* HTTPS listener:
+ * você deve especificar um certificado padrão
+ * você pode adicionar uma lista opcional de certificados para oferecer suporte a vários domínios
+ * os clientes podem usar SNI (server name indication) para especificar o nome do host que alcançam
+ * capacidade de especificar uma política de segurança para suportar versões mais antigas de SSL/TLS (clientes legados)
+
+SSL - Server Name Indication (SNI)
+* SNI resolve o problema de carregar vários certificados SSL em um servidor web (para servir vários sites)
+* é um protocolo "mais recente" e exige que o cliente indique o nome do host do servidor de destino no handshake SSL inicial
+* O servidor encontrará então o certificado correto ou retornará o padrão
+
+Observação:
+* funciona apenas para ALB e NLB (geração mais recente), cloudFront
+* não funciona para CLB (geração mais antiga)
+
+Elastic Load Balancer - SSL Certificates
+* Classic Load Balancer (v1)
+ * suporta apenas um certificado SSL
+ * deve usar vários CLB para vários nomes de host com vários certificados SSL
+
+* Application Load Balancer (v2)
+ * suporta vários ouvintes com vários certificados SSL
+ * usa indicação de nome de servidor (SNI) para fazê-lo funcionar
+
+* Network Load Balancer (v2)
+ * Suporta vários ouvintes com vários certificados SSL
+ * usa indicação de nome de servidor (SNI) para fazê-lo funcionar
+
+----------------------------------------------------------
+Auto Scaling Group
+* Na vida real, a carga nos seus sites e aplicativos pode mudar
+* Na nuvem, você pode criar e se livrar de servidores muito rapidamente
+
+* O objetivo de um auto scaling group (ASG) é:
+ * expandir horizontalmente (adicionar instâncias do EC2) para corresponder a um aumento de carga
+ * Aumentar a escala (remover instâncias do EC2) para corresponder a uma carga reduzida
+ * Garantir que tenhamos um número mínimo e máximo de instâncias do EC2 em execução
+ * Registrar automaticamente novas instâncias em um balanceador de carga
+ * Recrie uma instância EC2 caso uma anterior seja encerrada (ex.: se não estiver íntegra)
+
+* ASG são gratuitos (você paga apenas pelas instâncias EC2 subjacentes)
+
+CloudWatch Alarms & Scaling
+* É possível escalar um ASG com base em alarmes do cloudWatch
+* Um alarme monitora um métrica (como média de CPU ou uma métrica personalizada)
+* Métricas como média de CPU são calculadas para todas as instâncias ASG
+* Com base no alarme:
+ * podemos criar políticas de expansão (aumentar o número de instâncias)
+ * podemos criar políticas de escala (diminuir o número de instâncias)
+
+==================================================================================
+
+AWS DATABASES
+Relacional -> multi-az -> para desastres, se eu perder uma database a outra sobe, DNS único
+	      read replica -> copia a database atual para outra database, feita de forma manual, tem dois DNS, para ter read replica tem que ter backup ativo
+
+Não relacional -> 
+
+
+databases suportadas pela aws -> amazon aurora, mysql, mariadb, postgresql, oracle, microsoft sql server
+
+BACKUPS
+Automated 1 - 35 dias (1 sec) -> s3 (free)
+Db snapshot -> manual (auto)
+
+----------------------------------------------------------
+***Amazon RDS overview***
+* RDS significa serviço de banco de dados relacional
+* É um serviço de banco de dados gerenciado que usa sql como linguagem de consulta
+* Permite criar banco de dados na nuvem gerenciados pela AWS
+ * Postgres
+ * Mysql
+ * MariaDb
+ * Oracle
+ * Microsoft SQL server
+ * IBM DB2
+ * Aurora (banco de dados proprietário da aws)
+
+* Vantagem em usar RDS vs  deploy de banco de dados na EC2
+* RDS é um serviço gerenciado:
+ * provisionamento automatizado, aplicação de patches no sistema operacional
+ * Backups contínuos e restore de data/hora específico(Restauração point in time)
+ * dashboards monitoring
+ * read replicas para melhor desempenho de leitura
+ * Configuração multi AZ para DR(disaster recovery/recuperação de desastres)
+ * Janelas de manutenção para atualizações
+ * Capacidade de escala (vertical e horizontal)
+ * armazenamento apoiado por EBS (gp2 ou io1)
+* Mas você não pode usar SSH em suas instâncias
+
+RDS - storage auto scaling
+* Ajuda a aumentar dinamicamente o armazenamento na sua instância de banco de dados RDS
+* quando o RDS detecta que você está ficando sem armazenamento livre no banco de dados, ele é dimensionado automaticamente
+* evite dimensionar manualmente o armazenamento do seu banco de dados
+* você deve definir o limite máximo de armazenamento (limite para o armazenamento de banco de dados)
+* modificar automaticamente o armazenamento se:
+ * o armazenamento gratuito é inferior a 10% do armazenamento alocado
+ * o armazenamento baixo dura pelo menos 5 minutos
+ * 6 horas se passaram desde a última modificação
+* útil para aplicativos com cargas de trabalho imprevisíveis
+* suporta todos os mecanismos de banco de dados RDS
+
+RDS read replicas para escalabilidade de leitura
+* até 15 replicas de leitura
+* dentro de AZ, entre AZ ou entre regiões
+* a replicação é ASYNC, portanto as leituras são eventualmente consistentes
+* as réplicas podem ser promovidas para seu próprio banco de dados
+* os aplicativos devem atualizar a cadeia de conexão para aproveitar réplicas de leitura
+
+RDS read replicas - casos de uso
+* você tem um banco de dados de produção que está assumindo carga normal
+* você deseja executar um aplicativo de relatórios para executar algumas análises
+* você cria uma réplica de leitura para executar a nova carga de trabalho lá
+* o aplicativo de produção não é afetado
+* replicas de leitura são usadas para select (=read) não é usado para (insert, update, delete)
+
+RDS read replicas - custo de rede
+* na aws há um custo de rede quando os dados vão de uma az para outra
+* para réplicas de leitura RDS na mesma região, você não paga essa taxa
+* para réplicas de leitura RDS em outra região, você paga taxa
+
+RDS multi AZ (recuperação de desastres) não é para desempenho
+* replicação SYNC
+* um nome DNS - failover automático do aplicativo para modo de espera
+* aumentar a disponibilidade
+* failover em caso de perda de AZ, perda de rede, instância ou falha de armazenamento
+* nenhuma intervenção manual em aplicativos
+* não usado para dimensionamento
+
+* observação: as réplicas de leitura devem ser configuradas como multi az para recuperação de desastres (DR)
+
+RDS single AZ a Multi AZ
+* operação com tempo de inatividade zero (sem necessidade de parar o banco de dados)
+* basta clicar em "modificar" para o banco de dados
+* o seguinte acontece internamente:
+ * um snapshot é tirado
+ * um novo banco de dados é restaurado a partir do snapshot em uma nova AZ
+ * sincronização é estabelecida entre os dois bancos de dados
+
+----------------------------------------------------------
+***Dynamo DB***
+serviço -> nosql
+milisegundos (baixa latência)
+documentos -> key value -> chave:valor
+quando utilizar -> app web/mobile
+		   games
+
+armazenamento feito em ssd
+3 data centers
+consistent reads > 1 segundo
+strongly consitent reads < 1 segundo
+
+* O amazona dynamoDB é um serviço de banco de dados NoSQL rápido e flexível para todas as aplicações que precisam de latência consistente de milissegundos
+  de um digito em qualquer escala
+* é um banco de dados totalmente gerenciado e oferece suporte a modelos de dados de documentos e chave-valor
+* seu modelo de dados flexível e desempenho confiável o tornam ideal pra dispositivos móveis, web, jogos, tecnologia de publicidade, IoT e muitos outros
+  aplicativos.
+
+4 fatos sobre o dynamoDB
+* armazenamento em SSD
+* distriuidos por 3 data centers geograficamente distintos
+* leituras eventualmente consistentes (padrão)
+* leituras fortemente consistentes 
+
+qual a diferença entre leituras eventualmente consistentes e leituras fortemente consistentes ?
+* Eventualmente: a consistência em todas as cópias de dados geralmente é alcançada em um segundo. Repetir uma leitura após um curto período de tempo deve
+   retornar os dados atualizados. Melhor desempenho de leitura.
+* Fortemente: uma leitura fortemente consistente retorna um resultado que reflete todas as gravações que recebem uma resposta bem-sucedida antes da leitura
+
+DynamoDB accelerator (DAX)
+* cache na memória totalmente gerenciado e altamente disponível
+* melhoria de desempenho de 10x
+* reduz o tempo de solicitação de milissegundos para microssegundos, mesmo sob carga
+* não há necessidade de os desenvolvedores gerenciarem a lógica de cache
+* compatível com chamadas de API do dynamoDB
+
+Capacidade sob demanda
+* preços de pagamento por solicitação
+* equilibrar custo e desempenho
+* sem capacidade mínima 
+* pague mais por solicitações do que com capacidade provisionada
+* use para lançamentos de novos produtos
+
+Segurança
+* criptografia em repouso usando KMS
+* VPN site-to-site
+* Direct connect (DX)
+* IAM policies and roles
+* acesso refinado
+* cloudWatch e cloudTrail
+* VPC endpoints
+----------------------------------------------------------
+
+***Elasticache***
+serviço -> fast (criação, operação, escalabilidade)
+não usa discos, usa in-memory cache, armazena em memória
+
+tipos:
+memorycached -> objetos
+redis -> key-value e só o redis trabalha com multi-az
+
+----------------------------------------------------------
+
+***Redshift***
+warehouse (armazem)
+colunas (read)
+inicia com 160 Gigas
+compressão de dados
+
+tipos:
+single node -> 1 instancia de db
+compute node -> 128 instancia de db
+
+mpp -> leitura mais rápida, mas não é multi-az
+
+----------------------------------------------------------
+
+***Aurora***
+criada em 2014
+proprietária da amazon, compatível com (mysql) e PostgreSQL
+5x mais rapido que o mysql e 3x melhor que os bancos de dados PostgreSQL
+oferece um preço muito mais baixo, ao mesmo tempo em que oferece desempenho e disponibilidade semelhantes
+10G -> autoscaling automatico
+temos a database principal que podemos fazer réplicas, na principal fazemos escrita e nas réplicas fazemos leitura
+podemos cria 15 réplicas de leitura
+latência baixa
+recover -> point in-time -> podemos recuperar a database de dias atras
+backup continuo -> 3 zonas e disponível no s3
+
+* comece com 10 GB. escalonável em incrementos de 10 GB até 128 TB (auto scaling de armazenamento)
+* os recursos de computação podem ser dimensionados para até 96 vCPUS e 768 GB de memória
+* 2 Cópias dos seus dados estão contidas em cada Zona de disponibilidade, com um mínimo de 3 zonas de disponibilidade. 6 cópias dos seus dados
+
+Scaling aurora
+
+* o Aurora foi projetado para lidar de forma transparente com a perda de até duas cópias de dados sem afetar a disponibilidade de gravação do banco
+  de dados e de até três cópias sem afetar a disponibilidade de leitura
+* O armazenamento aurora também é auto-recuperável. blocos de dados e discos são continuamente verificados em busca de erros e reparados automaticamente
+
+3 tipos de replicas com aurora
+* atualmente você pode ter 15 réplicas de leitura com o Aurora, tanto aurora mysql e PostgreSQL oferecem suporte a 15 réplicas
+
+Backups com aurora
+
+* os backups automatizados estão sempre habilitados nas instâncias de banco de dados do amazona aurora. Os backups não afetam o desempenho do banco de dados
+* você também pode tirar snapshots com aurora. isso também não afeta o desempenho
+* você pode compartilhar snapshots do aurora com outras contas da aws
+
+Aurora serverless
+* uma configuração de escalonamento automático sob demanda para as edições do amazona aurora compatíveis com mysql e PostgreSQL. um cluster de banco de 
+  dados aurora serverless inicia, desliga e aumenta ou diminui automaticamente a capacidade com base nas necessidades do seu aplicativo
+
+Casos de uso com aurora serverless
+o aurora serverless oferece um opção relativamente simples e econômica para cargas de trabalho pouco frequentes, intermitentes ou imprevisíveis.
+
+==================================================================================
+
+Route 53
+
+política de roteamento
+
+Simple routing policy (Política de roteamento simples): use para um único recurso que executa uma determinada função para seu domínio, por exemplo, um servidor Web que oferece conteúdo para o site example.com. Você pode usar roteamento simples para criar registros em uma zona hospedada privada. Se você 
+escolher a política de roteamento simples, poderá ter apenas um registro com vários endereços IP. Se você especificar vários valores em um registro, o Route
+53 retornará todos os valores ao usuário em ordem alatória.
+
+Failover routing policy (Política de roteamento de failover): use quando quiser configurar o failover ativo-passivo (ativo -> site primário e passivo -> site secundário). Você pode usar roteamento com failover para criar registros em uma zona hospedada privada. Exemplo, você pode querer que seu site primário esteja em EU-WEST-2 e seu site secundário de DR/recuperação de desastres em AP-SOUTHEAST-2. o Route 53 monitorará a integridade do seu site primário usando uma verificação de integridade.
+
+Geolocation routing policy (Política de roteamento de geolocalização): use quando quiser encaminhar o tráfego com base na localização dos usuários. Você pode usar roteamento por geolocalização para criar registros em uma zona hospedada privada. O roteamento de geolocalização permite que você escolha para onde seu tráfego será enviado com base na localização geográfica de seus usuários (ou seja, o local de origem das consultas DNS).
+  CASOS DE USO: por exemplo, você pode querer que todas as consultas da Europa sejam roteadas para uma frota de instâncias do EC2 configuradas especificamente para seus clientes europeus. Estes servidores podem ter o idioma local dos seus clientes europeus e exibir todos os preços em euros.
+
+Geoproximity routing policy /(Política de roteamento por geoproximidade) somente fluxo de tráfego: O roteamento por geoproximidade permite que o route 53 direcione o tráfego para seus recursos com base na localização geográfica de seus usuários e recursos. Opcionalmente, você também pode optar por rotear mais ou menos tráfego para um determinado recurso especialmente um valor, conhecido como tendência. Para usar o roteamento por geoproximidade, você deve usar o fluxo de tráfego da Rota 53.
+
+Política de roteamento por latência: use quando tiver recursos em várias Regiões da AWS e quiser rotear o tráfego para a região que ofereça a melhor latência. Você pode usar roteamento por latência para criar registros em uma zona hospedada privada.
+  Conjunto de registro de recursos de latência: Para usar o roteamento baseado em latência, você cria um conjunto de registros de recursos de latência para      o recurso EC2 (ou ELB) em cada região que hospeda seu site. Quando o route 53 recebe uma consulta para seu site, ele seleciona o conjunto de registros de recursos de latência para a região que fornece ao usuário a latência mais baixa.
+
+IP-based routing policy (Política de roteamento baseado em IP): use quando quiser rotear o tráfego com base no local dos usuários e tiver os endereços IP de origem do tráfego.
+
+Multivalue answer routing policy (Política de roteamento de resposta com vários valores): use quando quiser que o Route 53 responda a consultas de DNS com até oito registros íntegros selecionados aleatoriamente. Você pode usar roteamento com resposta multivalor para criar registros em uma zona hospedada privada. Parece muito o roteamento simples, só que no multivalue tem health check integrado.
+
+Weighted routing policy (Política de roteamento ponderado): use para encaminhar o tráfego para vários recursos nas proporções que você especificar. Você pode usar roteamento ponderado para criar registros em uma zona hospedada privada. Permite que você divida seu tráfego com base em diferentes pesos atribuídos. Por exemplo, você pode definir 10% do seu tráfego para us-east-1 e 90% para eu-west-1
+  Health checks
+    * você pode definir verificações de integridade em conjuntos de registros individuais.
+    * se um conjunto de registros falhar na verificação de integridade, ele será removido da rota 53 até passar na verificação de integridade
+    * você pode definir notificações do SNS para alertá-lo sobre falhas nas verificações de integridade.
+
+
+==================================================================================
+CloudFront
+O Amazon CloudFront é um serviço de rede de entrega de conteúdo (CDN) criado para alta performance, segurança e conveniência do desenvolvedor.
+
+==================================================================================
+>>>EBS<<<
+a ec2 e o voluem ebs tem de estar na mesma az/zona de disponibilidade
+ebs mult-attach -> duas instância ou mais para conectar no mesmo disco ebs e tem de ser do tipo io 1 e as ec2 tem de ser do tipo nitro
+
+tipos de volumes EBS:
+ssd -> mais rápido mais caro
+hdd -> mais lento e mais barato
+
+Amazon EBS) que possa suportar até 20.000 IOPS ?
+	SSD de IOPS provisionado, um volume de SSD de IOPS provisionado do EBS fornece até 64.000 IOPS para cada volume.
+
+Os volumes EBS tem 6 tipos
+  * gp2/gp3 (ssd): volume SSD de uso geral que equilibra preço e desempenho para uma ampla variedade de cargas de trabalho
+  * io1/io2 block express(ssd): volume ssd de mais alto desempenho para cargas de trabalho de baixa latência ou alto rendimento de missão crítica
+  * st1(hdd): volume de hdd de baixo custo projetado para cargas de trabalho de acesso frequente e com alto rendimento
+  * sc1(hdd): volume de hdd de menor custo projetado para cargas de trabalho acessadas como menos frequência
+
+Os volumes EBS são caracterizados em tamanho | rendimento | iops (operação de E/S por segundo)
+Somente gp2/gp3 e io1/io2 block express podem ser usados  como volumes de inicialização 
+
+Casos de uso de tipos de volumes EBS SSD de uso geral
+  * armazenamento econômico e baixa latência
+  * volumes de inicialização de sistema, desktops virtuais, ambientes de desenvolvimento e teste
+  * 1 GiB a 16 Gib
+GP3:
+  * Geração mais recente de volumes
+  * linha de base de 3000 IOPS e taxa de transferência de 125 MiB/s
+  * Pode aumentar o IOPS em até 16000 e a taxa de transferência em até 1000 MiBs/s de forma independente
+  * ideal para aplicações que exigem alto desempenho com baixo custo, com Mysql, Cassandra, desktops virtuais e análises hadoop
+GP2:
+  * Geração mais antiga
+  * pequenos volumes gp2 podem aumentar o IOPS para 3000
+  * o tamanho do volume e o IOPS estão vinculados, o IOPS máximo é 16000
+  * 3 IOPS por GB, significa que com 5334 GB estamos no IOPS máximo
+
+Casos de uso de tipos de volumes EBS SSD de IOPS provisionadas (PIOPS)
+  carga de trabalho de banco de dados que é muito sensível ao desempenho e a consistencia do armazenamento, os volumes provisionados serão ótimos
+  * aplicativos de negócios críticos com desempenho de IOPS sustentado
+  * Ou aplicativos que precisam de mais de 16000 IOPS
+  * ótimo para cargas de trabalho de banco de dados (sensível ao desempenho e a consistência do armazenamento)
+  * io1 (4GiB - 16TiB):
+    * Máximo de PIOPS:64000 para instancias nitro ec2 e 32000 para outras
+    * pode aumentar PIOPS independentemente do tamanho do armazenamento
+  * io2 block express (4Gib - 64TiB):
+    * latencia inferior a milissegundos
+    * máximo de PIOPS: 256000 com uma proporção IOPS:GiB de 1000:1
+    * io2 é o mesmo preço que o io1
+    * durabilidade de 99.999% em vez de 99.9%
+  * Suporta EBS Multi-attach
+
+TIPOS DE VOLUMES EBS CASOS DE USO 
+UNIDADES DE DISCO RÍGIDO (HDD)
+  * não pode ser um volume de inicialização
+    * 125 GiB a 16 TiB
+  * HDD otimizado para rendimento (st1)
+    * big data, data warehouse, processamento de logs
+    * taxa de transferencia máxima de 500 MiB/s - IOPS máximo de 500
+  * HDD frio (scl):
+    * para dados que são acessados com pouca frequência
+    * cenários onde o menor custo é importante
+    * taxa de transferencia máxima de 250 MiB/s - IOPS máximo de 250 
+
+
+EBS Multi-Attach - família io1/io2 
+  * Anexe o mesmo volume EBS a várias instâncias do EC2 na mesma AZ
+  * Cada instância tem permissões totais de leitura e gravação no volume de alto desempenho
+  * CASOS DE USO
+    * Obtenha maior disponibilidade de aplicativos em aplicativos Linux em Cluster (ex.: TERADATA)
+    * Os aplicativos devem gerenciar operações de gravação simultâneas
+    * Até 16 instancias EC2 por vez
+  * Deve usar um sistema de arquivos com reconhecimento de cluster (não XFS, EXT4, etc...)
+
+CRIPTOGRAFIA EBS
+  * Ao criar um volume EBS criptografado, você obtém o seguinte:
+    * Os dados em repouso são criptografados dentro do volume
+    * Todos os dados em movimento entre as instância e o volume são criptografados
+    * Todos os snaphots são criptografados
+    * Todos os volumes criados a partir do snapshot
+  * A criptografia e a descriptografia são tratadas de forma transparente (você não tem nada para fazer)
+  * A criptografia tem um impacto mínimo na latência
+  * A criptografia EBS aproveita chaves do KMS (AES-256)
+  * Copiar um snapshot não criptografado permite a criptografia
+  * Snapshot de volumes criptografados são criptografados
+
+Criptografia: criptografe um volume EBS não criptografado
+  * Crie um snapshot EBS do volume raiz não criptografado
+  * crie uma cópia do snapshot e selecione a opção de criptografia
+  * Crie um novo volume ebs a partir do snapshot (o volume também será criptografado)
+  * Agora você pode anexar o volume criptografao a instância original
+
+IOPS
+* mede o número de operações  de leitura e gravação por segundo
+* métrica importante para transações rápidas, aplicativos de baixa latência e cargas de trabalho transacionais
+* a capacidade de ação lê e escrever muito rapidamente
+* escolha SSD de IOPS provisionados (io1 ou io2)
+
+Throughput
+* mede o número de bits lidos ou escritos por segundo (MB/s)
+* métrica importante para grandes conjuntos de dados, grandes tamanhos de E/S e consultas complexas
+* a capacidade de lidar com grandes conjuntos de dados
+* escolha HDD otimizado para taxa de transferência (st1)
+
+---------------------------------------------------------------
+>>>ARMAZENAMENTO EM INSTÂNCIA/INSTANCE STORE<<<
+
+Definição: EC2 (Elastic Compute Cloud) é o serviço de computação em nuvem da AWS, e o armazenamento em instância é uma opção de armazenamento temporário diretamente associada à instância EC2.
+
+Características: O armazenamento em instância é localizado no host físico da instância EC2, proporcionando alta taxa de transferência e baixa latência, ideal para aplicativos que requerem acesso rápido a dados temporários.
+
+Efemeridade: O armazenamento em instância é efêmero, o que significa que os dados armazenados são perdidos quando a instância é parada ou terminada. Portanto, não é adequado para armazenar dados persistentes.
+
+Desempenho: Oferece alto desempenho para cargas de trabalho que exigem acesso rápido a dados, como caches, bancos de dados temporários e processamento de dados temporários.
+
+Tipos de Instâncias: Nem todos os tipos de instâncias EC2 suportam armazenamento em instância. É importante selecionar instâncias que ofereçam esse recurso, como as instâncias do tipo "I3" ou "C5d".
+
+Backup e Persistência: Devido à efemeridade do armazenamento em instância, é essencial implementar estratégias de backup e persistência de dados usando outros serviços da AWS, como o Amazon S3 ou o Amazon EBS.
+
+Segurança: Como os dados armazenados em instâncias são temporários, é importante garantir que informações sensíveis sejam adequadamente criptografadas e protegidas, seguindo as práticas recomendadas de segurança da AWS.
+
+Custo: O armazenamento em instância é parte do custo total da instância EC2 e geralmente é incluído no preço da instância. No entanto, os custos podem variar com base no tipo e tamanho da instância.
+
+Uso Adequado: É crucial compreender os casos de uso ideais para o armazenamento em instância e aplicá-lo em cenários onde sua alta performance e efemeridade são vantajosas.
+
+Monitoramento e Manutenção: Monitorar a integridade e o desempenho do armazenamento em instância é essencial para garantir o bom funcionamento das aplicações. A manutenção regular das instâncias também é necessária para garantir o desempenho ideal.
+
+==================================================================================
+EFS -> elastic file system
+O Amazon Elastic File System (EFS) aumenta e diminui automaticamente conforme você adiciona e remove arquivos, sem a necessidade de gerenciamento ou provisionamento.
+
+as instâncias podem estar em vpc diferente que ainda conseguem acessar o EFS
+as instâncias podem estar em az diferente que ainda conseguem acessar o EFS
+as instâncias podem estar em regiões diferentes que ainda conseguem acessar o EFS
+
+* NFS (network file system) gerenciado que pode ser montado em muitos EC2
+* EFS funciona com instâncias EC2 em multi-AZ
+* Altamente disponível, escalável, caro (3x gp2), pagamento por uso
+
+CASOS DE USO: gerenciamento de conteúdo, serviço web, compartilhamento de dados, wordpress
+* usa protocolo NFSv4.1 
+* usa grupo de segurança para controlar o acesso ao EFS
+* Compatível com AMI baseada em Linux (não windows)
+* criptografia em repouso usando KMS
+
+* Sistema de arquivos POSIX(~Linux) que possui uma API de arquivo padrão
+* O sistema de arquivos é dimensionado automaticamente, pago conforme o uso, sem planejamento de capacidade!
+
+
+PERFORMANCE & STORAGE CLASSES
+* EFS SCALE
+  * milhares de clientes NFS simultâneos, taxa de transferência de 10GB+/s
+  * Crescer automaticamente para o sistema de arquivos de rede em escala de petabytes
+
+* MODO DE DESEMPENHO (definido no momento da criação de EFS)
+  * finalidade geral (padrão) - casos de uso sensíveis a latência (servidor web, CMS, etc...)
+  * Max I/O - maior latência, rendimento, altamente paralelo (big data, processamento de mídia)
+
+* Modo de rendimento/throughput mode
+  * Burst: 1TB=50MiB/s + burst de até 100MiB/s
+  * Provisionado: defina sua taxa de transferência independentemente do tamanho do armazenamento, por exemplo: 1GB/s para armazenamento de 1TB
+  * Elastic: aumenta ou diminui automaticamente a taxa de transferência com base em suas cargas de trabalho
+    * Até 3GiB/s para leituras e 1GiB/s para escrita
+    * usado para cargas de trabalho imprevisíveis
+
+CLASSES DE ARMAZENAMENTO
+Camadas de armazenamento(recurso de gerenciamento de ciclo de vida - Mover arquivo após N dias)
+* standard: para arquivos acessados com frequência
+* Infrequent access (EFS-IA):Custo para recuperar arquivos, menor preço para armazenar
+* Archive: dados raramente acessados (poucas vezes por ano), 50% mais barato
+* Implemente políticas de ciclo de vida para mover arquivos entre camadas de armazenamento
+
+DISPONIBILIDADE DE DURABILIDADE
+* Standard: Multi-AZ, ótimo para produção
+* One Zone: One AZ, ótimo para desenvolvedores, backup habilitado por padrão, compatível com IA (EFS ONE ZONE-IA)
+* Mais de 90% em economia de custos
+
+>>>EBS vs EFS<<<
+VOLUME EBS
+* uma instancia (exceto multi-attach io1/io2)
+* estão bloqueados no nível da zona de disponibilidade (AZ).
+* gp2:10 aumenta se o tamanho do disco aumentar
+* gp3 e io1: podem aumentar io de forma independente
+Para migrar um volume EBS entre AZ
+* tire um snapshot 
+* restaurar o snapshot para outra AZ
+* os backups do EBS usam IO e você não deve executá-los enquanto seu aplicativo estiver lidando com muito tráfego
+Os volumes raiz EBS das instâncias serão encerrados por padrão se a instância ec2 for encerrada. (você pode desativar isso)
+------------
+EFS
+* montagem de centenas de instâncias em AZ
+* EFS compartilha arquivos de sites(wordpress)
+* Somente para instâncias Linux(POSIX)
+* EFS tem um preço mais alto que EBS
+* pode aproveitar os níveis de armazenamento para economizar custos
+* Lembre-se: EFS x EBS x Armazenamento de instâncias
+==================================================================================
+Amazon Kinesis -> é um serviço serveless, que analisa dados em tempo real (decisões mais rapidas)
+
+Kinesis data stream recebe os dados, armazena e indexa para a próxima etapa, 24h -> 7 dias, armazena em shad
+kineses data firehose -> carrega esses dados para um destino específico, ex.: s3   | 0 horas
+Kinesis data analytics -> recebe os dados do stream, pode usar um função lambda para fazer a leitura
+
+==================================================================================
+Aws Storage Gateway -> permite que o servidor on-primisses acessa storage do s3 na aws, logo é um serviço hibrido, usado para backup, tem um sistema de cache gerando uma baixa latência na casa do milisegundos.
+A aws te envia um dispositivo físico chamado storage gateway para usar esse serviço
+usando esse serviço, existem 3 opções:
+File gateway: utiliza o mesmo sistema do s3
+Volume gateway: utiliza como um block storage
+backup gateway: pode ser block storage ou file do s3
+
+O AWS Storage Gateway Tape Gateway permite substituir o uso de fitas físicas no local por fitas virtuais na AWS sem alterar os fluxos de trabalho de backup existentes. O Tape Gateway emula bibliotecas de fitas físicas, elimina o custo e a complexidade do gerenciamento da infraestrutura de fitas físicas e oferece mais durabilidade do que as fitas físicas.
+
+==================================================================================
+SQS -> simpe queue service
+	standart - envia requisições não é em ordem
+	fifo - primeiro a entrar primeiro a sair
+é pull base, as informações tem de ser requeridas a ele
+
+Desacople sistemas e aumente a escalabilidade - SNS e SQS.
+==================================================================================
+SNS -> SIMPLE NOTIFICATION SERVICE
+sistema de notificação, na parte de alerta dos preços na aws
+push notification -> mobile
+sms
+text message
+email
+http
+paga pelo o que você usa
+
+quando cria um alerta você cria um tópico
+
+Desacople sistemas e aumente a escalabilidade - SNS e SQS.
+==================================================================================
+SWF -> simple workflow service
+conjunto de tarefas de devem ser executadas numa ordem específica
+automatizar ou uma interface que pensa quase como um ser humano
+automatiza e integra toda sua aplicação dentro de um processo
+pode ser 10.000 tarefas, 1000 tarefas por segundo
+
+==================================================================================
+ELASTIC TRANSCODER
+converte mídias para diversos dispositivos
+
+==================================================================================
+API GATEWAY
+
+==================================================================================
+Cognito -> Com o Amazon Cognito, você pode adicionar recursos de inscrição e login de usuários e controlar o acesso a suas aplicações móveis e da Web.
+fazer login com o google ou facebook, github
+consegue filtrar permissões em sites, o que pode ou não acessar num site de curso
+
+==================================================================================
+AWS LAMBDA
+
+web user -> api gateway -> função lambda -> button da página web
+                           acessa |
+	                    bucket:index.html
+
+==================================================================================
+::SEGURANÇA NA AWS::
+
+AWS DIRECTORY service -> service de ad para senhas
+
+==================================================================================
+Identity Federation
+
+==================================================================================
+Encryption
+in transit ->
+at rest ->
+
+==================================================================================
+AMAZON ATHENA -> é um serviço de análise interativo e sem servidor criado em frameworks de código aberto, com suporte a formatos de tabela e arquivo abertos. O Athena fornece uma maneira simplificada e flexível de analisar petabytes de dados onde eles residem. Analise dados ou crie aplicações a partir de um data lake do Amazon Simple Storage Service (S3) e mais de 30 fontes de dados, incluindo fontes de dados on-premises ou outros sistemas em nuvem usando SQL ou Python. O Athena é construído com mecanismos Trino e Presto de código aberto e frameworks Apache Spark, sem necessidade de provisionamento ou configuração.
+
+==================================================================================
+AWS awf serve para bloquear scripts cross-site e ataques de injeção de SQL.
+
+
+==================================================================================
+Opções de recuperação de desastres na nuvem
+
+Backup & Restore
+	RPO/RTO: HOURS
+	* Lower priority use cases
+	* Provision all aws resources after event
+	* Restore backup after event
+	* Cost $
+
+Pilot Light
+	RPO/RTO:10S of minutes
+	* Data live
+	* services idle
+	* Provision some aws resources and scale after event
+	* Cost: $$
+
+Warm standby
+	RPO/RTO: Minutes
+	* Always running, but smaller
+	* Business critical
+	* Scale aws resources after event
+	* cost $$$
+Essa solução atende ao requisito de um RTO de cinco minutos com uma instância em execução mínima. As instâncias são executadas com baixa capacidade e podem ser dimensionadas em minutos.
+
+Multi-site active/active
+	RPO/RTO: Real-time
+	* zero downtime
+	* Near zero data loss
+	* Mission critical services
+	* cost $$$$
+
+==================================================================================
+
+AWS Global Accelerator 
+O AWS Global Accelerator usa a vasta rede global da AWS sem congestionamento para rotear o tráfego TCP e UDP para um endpoint de aplicativo íntegro na região da AWS mais próxima do usuário.
+
+Isso significa que ele direcionará o tráfego de forma inteligente para o ponto de presença mais próximo (reduzindo a latência). O failover contínuo é garantido, pois o AWS Global Accelerator usa o endereço IP anycast, o que significa que o IP não muda ao fazer failover entre regiões, para que não haja problemas com caches de clientes com entradas incorretas que precisam expirar.
+
+Esta é a única solução que fornece failover determinístico.
+
+==================================================================================
+AWS DataSync
+O AWS DataSync pode ser usado para mover grandes quantidades de dados online entre o armazenamento local e o Amazon S3 ou o Amazon Elastic File System (Amazon EFS). O DataSync elimina ou lida automaticamente com muitas dessas tarefas, incluindo tarefas de cópia de script, agendamento e monitoramento de transferências, validação de dados e otimização da utilização da rede. O datastore de origem pode usar servidores de arquivos que se comunicam usando o protocolo SMB (Server Message Block).
+
+
+
+
+
+
+
+
+
+
+
+
