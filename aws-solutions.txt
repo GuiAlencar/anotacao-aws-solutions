@@ -1315,9 +1315,16 @@ Esta é a única solução que fornece failover determinístico.
 AWS DataSync
 O AWS DataSync pode ser usado para mover grandes quantidades de dados online entre o armazenamento local e o Amazon S3 ou o Amazon Elastic File System (Amazon EFS). O DataSync elimina ou lida automaticamente com muitas dessas tarefas, incluindo tarefas de cópia de script, agendamento e monitoramento de transferências, validação de dados e otimização da utilização da rede. O datastore de origem pode usar servidores de arquivos que se comunicam usando o protocolo SMB (Server Message Block).
 
+==================================================================================
 
+ElastiCache
+O Amazon ElastiCache é um serviço de cache na memória totalmente gerenciado que oferece suporte a casos de uso flexíveis e em tempo real. Você pode usar o ElastiCache para armazenamento em cache, que acelera o desempenho de aplicativos e bancos de dados, ou como um armazenamento de dados primário para casos de uso que não exigem durabilidade, como armazenamentos de sessão, placares de jogos, streaming e análises. O ElastiCache é compatível com Redis e Memcached.
 
+Como os problemas nesta instância são causados ​​por baixo desempenho de leitura, uma solução de armazenamento em cache descarregaria as leituras da instância de banco de dados primária e permitiria que o aplicativo tivesse um desempenho melhor.
 
+==================================================================================
+AWS Glue
+O AWS Glue é um serviço gerenciado de transformação de dados.
 
 
 
