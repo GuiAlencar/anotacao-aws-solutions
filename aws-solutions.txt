@@ -453,6 +453,26 @@ PARA TORNAR UMA SUBNET/SUBREDE PÚBLICA -> ações -> editar configurações de 
 
 ligar vpc ao internet gateway -> internet gateway -> ações -> associar vpc -> escolha sua vpc -> associar gateway
 
+--------------------------------------------------
+Internet gateway (IGW)
+* permite que recursos na vpc conecte na internet, exemplo: EC2
+* é dimensionado horizontalmente e é altamente disponível e redundante
+* Deve ser criado separadamente de uma vpc
+* um vpc pode somente ser anexado a um IGW e vice versa
+* O internet gateway por si só não permitem acesso a internet
+* as tabelas de rotas também devem ser editadas
+
+--------------------------------------------------
+NAT GATEWAY
+* NAT gerenciado pela aws, maior largura de banda, alta disponibilidade, sem administração 
+* pague por hora pelo uso e largura de banda
+* o nat gateway é criado em uma zona de disponibilidade especifica, usa um elastic IP
+* não pode ser usado pela instância EC2 na mesma sub-rede (somente de outras sub-redes)
+* requer um IGW (sub-rede privada => NATGW => IGW)
+* 5 GBps de largura de banda com escalonamento automático até 100 GBps
+* nenhum grupo de segurança para gerenciar/necessário
+* não usa bastion host
+
 ==================================================================================
 aws transit gateway
 
@@ -924,7 +944,7 @@ criada em 2014
 proprietária da amazon, compatível com (mysql) e PostgreSQL
 5x mais rapido que o mysql e 3x melhor que os bancos de dados PostgreSQL
 oferece um preço muito mais baixo, ao mesmo tempo em que oferece desempenho e disponibilidade semelhantes
-10G -> autoscaling automatico
+10G -> autoscaling automático 
 temos a database principal que podemos fazer réplicas, na principal fazemos escrita e nas réplicas fazemos leitura
 podemos cria 15 réplicas de leitura
 latência baixa
