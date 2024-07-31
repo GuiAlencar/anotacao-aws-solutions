@@ -442,6 +442,7 @@ VPC
 ordem:
 Região -> vpc -> az -> subnets
 lembrando, dentro de uma região tem mais de uma AZ
+pode se ter várias vpcs na região (5 por região)
 
 vpc -> sistema lógico virtual criado para isolar conteúdo dentro da mesma região, uma vpc não pode participar de duas regiões ao mesmo tempo
 subnets são criadas para segmentar/separar conteúdos dentro de uma vpc
@@ -511,6 +512,7 @@ VPC ENDPOINT
 
 --------------------------------------------------
 Network Acl
+* NACL é como um firewall que controla o tráfego para as subnetes
 * default network ACL: sua vpc vem automaticamente com uma ACL de rede padrão e, por padrão, permite todo o tráfego de entrada e saída.
 * custom network ACL: você pode criar ACLs de rede personalizadas. Por padrão, cada ACL de rede personalizada nega todo o tráfego de entrada e saída 
   até que você adicione regras.
@@ -885,8 +887,67 @@ Capacidade sob demanda
 * pague mais por solicitações do que com capacidade provisionada
 * use para lançamentos de novos produtos
 
+==================================================================================
+
 Segurança
-* criptografia em repouso usando KMS
+
+Criptogrfia do lado do servidor em repouso:
+ * os dados são criptografados após serem recebidos pelo servidor
+ * os dados são descriptografados antes de serem enviados
+ * é armazenado de forma criptografada graças a uma chave (geralmente uma chave de dados)
+ * As chaves de criptografia/descriptografia devem ser gerenciadas em algum lugar, e o servidor deve ter acesso a elas
+  
+Criptografia do lado do cliente
+ * os dados são criptografados pelo cliente e nunca descriptografados pelo servidor
+ * os dados serão descriptografados por um cliente receptor
+ * o servidor não deve ser capaz de descriptografar os dados
+ * poderia aproveitar a criptografia de envelope
+
+AWS KMS (Key Management Service)
+ * sempre que você ouve "criptografia" para um serviço AWS, provavelmente é KMS
+ * A aws gerencia chaves de criptografia para nós
+ * totalmente integrado com IAM para autorização
+ * maneira fácil de controlar o acesso aos seus dados
+ * capaz de auditar o uso de chaves KMS usando o cloud Trail
+ * integrado perfeitamente a maioria dos serviços da AWS (EBS, S3, RDS, SSM...)
+ * Nunca armazene seus segredos em texto simples, especialmente em seu código!
+  * criptografia de chave KMS também disponível por meio de chamadas de API (SDK, CLI)
+  * Segredos criptografados podem ser armazenados no código/variáveis de ambiente
+
+Tipos de chaves KMS
+* Kms Keys é o novo nome da KMS customer master key
+
+* simétrico (chaves AES-256)
+ * chave de criptografia única usada para criptografar e descriptografar
+ * os serviços da aws integrados ao KMS usam CMKs simétricos
+ * você nunca obtém acesso a chave KMS sem criptografia (deve chamar a API KMS para usar)
+
+* Assimétrico (pares de chaves RSA e ECC)
+ * par de chaves pública (criptografar) e privada (descriptografar)
+ * usado para operações de criptografar/descriptografar ou assinar/verificar
+ * a chave pública pode ser baixada, mas você não pode acessar a chave privada sem criptografia
+ * caso de uso: criptografia fora da aws por usuários que não podem chamar a API do KMS
+
+* chaves de propriedade da AWS (gratis): SSE-S3, SSE-SQS, SSE-DDB (chave padrão)
+* chaves gerenciadas pela aws: grátis (aws/nome-do-serviço, exemplo: aws/rds ou aws/ebs)
+* chaves gerenciadas pelo cliente criadoa no KMS: US$ 1/mês
+* chaves gerenciadas pelo cliente importadas: US$ 1/mês
+* + pagar por chamadas de API para KMS (US$ 0,03 / 10.000 chamadas)
+
+* Rotação automática de chaves:
+ * chave KMS gerenciada pela AWS: automática a cada 1 ano
+ * chave KMS gerenciada pelo cliente: (deve ser habilitada) automática e sob demanda
+ * chave KMS importada: somente rotação manual possível usando alias
+
+Copiando snapshots entre contas
+1 - crie um snapshot, criptografado com sua própria chave kms (chave gerenciada pelo cliente)
+2 - anexe uma politica de chave kms para autorizar o acesso entre contas
+3 - compartilhe o snapshot criptografado
+4 - no destino, crie uma cópia do snapshot, criptografe-o com uma CMK em sua conta
+5 - crie um volume a partir do snapshot
+
+
+
 * VPN site-to-site
 * Direct connect (DX)
 * IAM policies and roles
