@@ -1014,12 +1014,81 @@ AWS AWF - Web Application Firewall
   * o waf não oferece suporte ao network load balancer (camada 4)
   * podemos usar o global accelerator para IP fixo e waf no ALB
 
-* VPN site-to-site
-* Direct connect (DX)
-* IAM policies and roles
-* acesso refinado
-* cloudWatch e cloudTrail
-* VPC endpoints
+AWS Shield: proteja-se contra ataques DDoS
+ * DDoS: Distributed Denial of servisse - muitas solicitações ao mesmo tempo
+ * Padrão AWS Shield:
+  * serviço gratuito que é ativado para todos os clientes da aws
+  * fornece proteção contra ataques como SYN/UDP floods, ataques de reflexão e outros ataques de camada 3/camada 4
+ * AWS Shield Advanced: 
+  * serviço opcional de mitigação de DDoS (US$ 3000 por mês por organização)
+  * proteja-se contra ataques mais sofisticados no amazona EC2, elastic load balancing (ELB), cloudFront, aws global accelerator e route53
+  * acesso 24 horas por dia, 7 dias por semana a equipe de resposta a DDoS da aws (DRP)
+  * proteja-se contra taxas mais altas durante picos de uso devido a DDoS
+  * a camada de aplicação automática shield advanced cria automaticamente uma mitigação de DDoS, avalia e implementa regras do aws waf para mitigar
+    ataques de camada 7
+
+AWS Firewall Manager
+ * gerenciar regras em todas as contas de uma organização aws
+ * politica de segurança: conjunto comum de regras  de segurança
+  * regras waf (application load balancer, api gateways, cloudFront)
+  * aws shield advanced(ALB, CLB, NLB, elastic ip, cloudFront)
+  * grupos de segurança para recursos ec2, application load balancer e ENI em vpc
+  * firewall de rede aws (nível vpc)
+  * firewall dns do amazona route53 resolver
+  * as politicas são criadas a nível regional
+ * as regras são aplicadas a novos recursos a medida que são criados (bom para conformidade) em todas as contas futuras da sua organização
+
+WAF vs Firewall manager vs shield
+ * waf, shield e firewall manager são usados juntos para proteção abrangente
+ * defina suas regras de ACL da web no waf
+ * para proteção granular de seus recursos, o waf sozinho é a escolha correta
+ * se você deseja usar o waf em todas as contas, acelerar a configuração do waf, automatizar a proteção de novos recursos, usar o firewall manager com o waf
+ * o shield advanced adiciona recursos adicionais ao awf, como dedicado suporte da shield response team (SRT) e relatórios avançados
+ * se você é propenso a ataques DDoS frequentes, considere comprar o shield advanced
+
+Amazon GuardDuty
+* Descoberta inteligente de ameaças para proteger sua conta AWS
+* utiliza algoritmos de machine learning, detecção de anomalias, dados de terceiros
+* um clique para habilitar (teste de 30 dias), sem necessidade de instalar software
+* os dados de entrada incluem:
+ * cloudTrail Events logs - registra chamadas de api incomuns, implantações não autorizadas
+  * cloudTrail management events - cria VPC subnet, cria trail
+  * cloudTrail S3 data events - obter objeto, listar objetos, excluir objeto
+ * VPC flow logs - tráfego interno incomum, endereço ip incomum
+ * DNS LOGS - instancias ec2 comprometidas enviando dados codificados em consultas DNS
+ * Optional feature - logs de autoria eks, rds e aurora, ebs, lambda eventos de dados s3
+* pode configurar regras do eventbridge para ser notificado em caso de descobertas
+* as regras do eventbridge podem ter como alvo aws lambda ou sns
+* pode proteger contra ataques de criptomoeda (tem uma descoberta para isso)
+
+Amazon Inspector
+• Avaliações de Segurança Automatizadas
+
+• Para instâncias EC2
+ • Aproveitando o agente AWS System Manager (SSM)
+ • Analisar contra acessibilidade de rede não intencional
+ • Analisar o sistema operacional em execução contra vulnerabilidades conhecidas
+
+• Para Imagens de Contêiner enviadas para o Amazon ECR
+ • Avaliação das Imagens de Contêiner à medida que são enviadas
+
+• Para Funções Lambda
+ • Identifica vulnerabilidades de software no código da função e nas dependências do pacote
+ • Avaliação das funções à medida que são implantadas
+
+• Relatórios e integração com o AWS Security Hub
+• Enviar descobertas para o Amazon EventBridge
+
+O que o Amazon Inspector avalia?
+• Lembre-se: apenas para instâncias EC2, Imagens de Contêiner e funções Lambda
+• Varredura contínua da infraestrutura, somente quando necessário
+• Vulnerabilidades de pacotes (EC2, ECR e Lambda) – banco de dados de CVE
+• Alcance de rede (EC2)
+• Uma pontuação de risco é associada a todas as vulnerabilidades para priorização
+
+AWS Macie
+• O Amazon Macie é um serviço totalmente gerenciado de segurança e privacidade de dados que usa aprendizado de máquina e correspondência de padrões para descobrir e proteger seus dados sensíveis na AWS.
+• O Macie ajuda a identificar e alertar sobre dados sensíveis, como informações de identificação pessoal (PII).
 ----------------------------------------------------------
 
 ***Elasticache***
