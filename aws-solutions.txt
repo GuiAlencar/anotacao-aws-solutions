@@ -966,7 +966,53 @@ Copiando snapshots entre contas
 4 - no destino, crie uma cópia do snapshot, criptografe-o com uma CMK em sua conta
 5 - crie um volume a partir do snapshot
 
+AWS Secret Manager
+ * serviço mais recente, destinado a armazenar segredos
+ * capacidade de forçar a rotação de segredos a cada X dias
+ * automatizar a geração de segredos em rotação (usa lambda)
+ * integração com amazona RDS (mysql, PostgreSQL, aurora)
+ * os segredos são criptografados usando KMS
+ * Principalmente destinado a integração RDS
 
+Secret Manager - Multi-Region Secrets
+ * Replique segredos em várias regiões da aws
+ * o secrets manager mantém as replicas de leitura sincronizadas com o secret primário
+ * capacidade de promover uma réplica de leitura para um secreta independente
+ * casos de uso: aplicativos multirregionais, estratégias de recuperação de desastres, banco de dados multirregionais.
+
+AWS Certificate Manager (ACM)
+ * provisione, gerencie e implante certificados TLS facilmente
+ * fornecer criptografia em voo para sites (HTTPS)
+ * suporta certificados TLS públicos e privados
+ * gratuito para certificados TLS públicos
+ * Renovação automática do certificado TLS
+ * Integrações com (carregar certificados TLS em)
+  * balanceadores de carga elásticos (CLB, ALB, NLB)
+  * distribuições cloudFront
+  * APIs no API gateway
+ * não é possível usar ACM com EC2 (não pode ser extraído)
+
+AWS AWF - Web Application Firewall
+ * serve para bloquear scripts cross-site e ataques de injeção de SQL.
+ * protege seus aplicativos da web contra explorações comuns da web (camada 7)
+ * a camada 7 é HTTP (vs. a camada 4 é tcp/udp)
+ * Deploy em
+  * application load balancer
+  * API gateway
+  * cloudFront
+  * appSync graphQL API
+  * cognito user pool
+ 
+ * Definir regras ACL (web access control list):
+  * conjunto de IP: até 10.000 endereços Ip - use várias regras para mais IPs
+  * HTTP headers, HTTP body, string url protege contra ataques comuns - sql injection e cross-site scripting (XSS) 
+  * restrições de tamanho, correspondência geográfica (bloqueio paises)
+  * regras baseadas em taxas (para contar ocorrências de eventos) - para proteção DDoS
+ * ACL da web são regionais, exceto para cloudFront
+ * um grupo de regras é um conjunto reutilizável de regras que você pode adicionar a uma ACL da web
+ * WAF - IP fixo ao usar WAF com um load balancer 
+  * o waf não oferece suporte ao network load balancer (camada 4)
+  * podemos usar o global accelerator para IP fixo e waf no ALB
 
 * VPN site-to-site
 * Direct connect (DX)
@@ -1325,31 +1371,7 @@ fazer login com o google ou facebook, github
 consegue filtrar permissões em sites, o que pode ou não acessar num site de curso
 
 ==================================================================================
-AWS LAMBDA
-
-web user -> api gateway -> função lambda -> button da página web
-                           acessa |
-	                    bucket:index.html
-
-==================================================================================
-::SEGURANÇA NA AWS::
-
-AWS DIRECTORY service -> service de ad para senhas
-
-==================================================================================
-Identity Federation
-
-==================================================================================
-Encryption
-in transit ->
-at rest ->
-
-==================================================================================
 AMAZON ATHENA -> é um serviço de análise interativo e sem servidor criado em frameworks de código aberto, com suporte a formatos de tabela e arquivo abertos. O Athena fornece uma maneira simplificada e flexível de analisar petabytes de dados onde eles residem. Analise dados ou crie aplicações a partir de um data lake do Amazon Simple Storage Service (S3) e mais de 30 fontes de dados, incluindo fontes de dados on-premises ou outros sistemas em nuvem usando SQL ou Python. O Athena é construído com mecanismos Trino e Presto de código aberto e frameworks Apache Spark, sem necessidade de provisionamento ou configuração.
-
-==================================================================================
-AWS awf serve para bloquear scripts cross-site e ataques de injeção de SQL.
-
 
 ==================================================================================
 Opções de recuperação de desastres na nuvem
