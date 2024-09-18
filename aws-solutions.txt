@@ -907,6 +907,25 @@ Capacidade sob demanda
 * pague mais por solicitações do que com capacidade provisionada
 * use para lançamentos de novos produtos
 
+DynamoDB – Processamento de Streams
+• Fluxo ordenado de modificações a nível de item (criação/atualização/exclusão) em uma tabela.
+• Casos de uso:
+• Reagir a mudanças em tempo real (e.g., envio de e-mails de boas-vindas a novos usuários).
+• Análises de uso em tempo real.
+• Inserir dados em tabelas derivadas.
+• Implementar replicação entre regiões.
+• Invocar AWS Lambda em alterações na sua tabela DynamoDB.
+
+DynamoDB Streams
+• Retenção de 24 horas.
+• Número limitado de consumidores.
+• Processamento usando AWS Lambda Triggers ou o adaptador DynamoDB Stream Kinesis.
+
+Kinesis Data Streams (mais recente)
+• Retenção de 1 ano.
+• Alto número de consumidores.
+• Processamento usando AWS Lambda, Kinesis Data Analytics, Kinesis Data Firehose, AWS Glue Streaming ETL, entre outros.
+
 ==================================================================================
 
 Segurança
