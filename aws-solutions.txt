@@ -69,6 +69,33 @@ Podemos gerenciar as políticas como:  IBP e RBP e depois poder criar os serviç
  * crie grupos e funções
  * controle o acesso aos recursos da AWS
 
+IAM: Usuários e Grupos
+• IAM = Gerenciamento de Identidade e Acessos, serviço global
+• A conta raiz é criada por padrão, mas não deve ser usada ou compartilhada
+• Usuários são pessoas dentro da sua organização e podem ser agrupados
+• Grupos contêm apenas usuários, não outros grupos
+• Usuários não precisam pertencer a um grupo, e um usuário pode pertencer a vários grupos
+
+IAM: Permissões
+• Usuários ou Grupos podem ser atribuídos a documentos JSON chamados políticas
+• Essas políticas definem as permissões dos usuários
+• Na AWS, aplica-se o princípio do menor privilégio: não conceda mais permissões do que um usuário precisa
+
+-------------------------
+Estrutura de Políticas IAM
+• Consiste em:
+• Version: versão da linguagem de política, sempre incluir "2012-10-17"
+• Id: um identificador para a política (opcional)
+• Statement: uma ou mais declarações individuais (obrigatório)
+
+• Declarações consistem em:
+• Sid: um identificador para a declaração (opcional)
+• Effect: se a declaração permite ou nega acesso (Allow, Deny)
+• Principal: conta/usuário/função à qual essa política se aplica
+• Action: lista de ações que essa política permite ou nega
+• Resource: lista de recursos aos quais as ações se aplicam
+• Condition: condições para quando essa política está em vigor (opcional)
+-------------------------
 Protegendo a conta root
   * habilite a autenticação de dois fatores
   * crie um grupo de administradores para seus administradores e atribua as permissões apropriadas a esse grupo.
