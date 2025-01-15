@@ -69,6 +69,33 @@ Podemos gerenciar as políticas como:  IBP e RBP e depois poder criar os serviç
  * crie grupos e funções
  * controle o acesso aos recursos da AWS
 
+IAM: Usuários e Grupos
+• IAM = Gerenciamento de Identidade e Acessos, serviço global
+• A conta raiz é criada por padrão, mas não deve ser usada ou compartilhada
+• Usuários são pessoas dentro da sua organização e podem ser agrupados
+• Grupos contêm apenas usuários, não outros grupos
+• Usuários não precisam pertencer a um grupo, e um usuário pode pertencer a vários grupos
+
+IAM: Permissões
+• Usuários ou Grupos podem ser atribuídos a documentos JSON chamados políticas
+• Essas políticas definem as permissões dos usuários
+• Na AWS, aplica-se o princípio do menor privilégio: não conceda mais permissões do que um usuário precisa
+
+-------------------------
+Estrutura de Políticas IAM
+• Consiste em:
+• Version: versão da linguagem de política, sempre incluir "2012-10-17"
+• Id: um identificador para a política (opcional)
+• Statement: uma ou mais declarações individuais (obrigatório)
+
+• Declarações consistem em:
+• Sid: um identificador para a declaração (opcional)
+• Effect: se a declaração permite ou nega acesso (Allow, Deny)
+• Principal: conta/usuário/função à qual essa política se aplica
+• Action: lista de ações que essa política permite ou nega
+• Resource: lista de recursos aos quais as ações se aplicam
+• Condition: condições para quando essa política está em vigor (opcional)
+-------------------------
 Protegendo a conta root
   * habilite a autenticação de dois fatores
   * crie um grupo de administradores para seus administradores e atribua as permissões apropriadas a esse grupo.
@@ -907,6 +934,25 @@ Capacidade sob demanda
 * pague mais por solicitações do que com capacidade provisionada
 * use para lançamentos de novos produtos
 
+DynamoDB – Processamento de Streams
+• Fluxo ordenado de modificações a nível de item (criação/atualização/exclusão) em uma tabela.
+• Casos de uso:
+• Reagir a mudanças em tempo real (e.g., envio de e-mails de boas-vindas a novos usuários).
+• Análises de uso em tempo real.
+• Inserir dados em tabelas derivadas.
+• Implementar replicação entre regiões.
+• Invocar AWS Lambda em alterações na sua tabela DynamoDB.
+
+DynamoDB Streams
+• Retenção de 24 horas.
+• Número limitado de consumidores.
+• Processamento usando AWS Lambda Triggers ou o adaptador DynamoDB Stream Kinesis.
+
+Kinesis Data Streams (mais recente)
+• Retenção de 1 ano.
+• Alto número de consumidores.
+• Processamento usando AWS Lambda, Kinesis Data Analytics, Kinesis Data Firehose, AWS Glue Streaming ETL, entre outros.
+
 ==================================================================================
 
 Segurança
@@ -1167,10 +1213,11 @@ escolher a política de roteamento simples, poderá ter apenas um registro com v
 
 Failover routing policy (Política de roteamento de failover): use quando quiser configurar o failover ativo-passivo (ativo -> site primário e passivo -> site secundário). Você pode usar roteamento com failover para criar registros em uma zona hospedada privada. Exemplo, você pode querer que seu site primário esteja em EU-WEST-2 e seu site secundário de DR/recuperação de desastres em AP-SOUTHEAST-2. o Route 53 monitorará a integridade do seu site primário usando uma verificação de integridade.
 
-Geolocation routing policy (Política de roteamento de geolocalização): use quando quiser encaminhar o tráfego com base na localização dos usuários. Você pode usar roteamento por geolocalização para criar registros em uma zona hospedada privada. O roteamento de geolocalização permite que você escolha para onde seu tráfego será enviado com base na localização geográfica de seus usuários (ou seja, o local de origem das consultas DNS).
-  CASOS DE USO: por exemplo, você pode querer que todas as consultas da Europa sejam roteadas para uma frota de instâncias do EC2 configuradas especificamente para seus clientes europeus. Estes servidores podem ter o idioma local dos seus clientes europeus e exibir todos os preços em euros.
+Geolocation Routing Policy (Política de Roteamento de Geolocalização): Use essa política quando quiser encaminhar o tráfego com base na localização dos usuários. A política de roteamento de geolocalização permite que você escolha para onde o tráfego será enviado com base na localização geográfica dos seus usuários (ou seja, o local de origem das consultas DNS). Vale lembrar que essa política só pode ser usada em zonas hospedadas públicas.
 
-Geoproximity routing policy /(Política de roteamento por geoproximidade) somente fluxo de tráfego: O roteamento por geoproximidade permite que o route 53 direcione o tráfego para seus recursos com base na localização geográfica de seus usuários e recursos. Opcionalmente, você também pode optar por rotear mais ou menos tráfego para um determinado recurso especialmente um valor, conhecido como tendência. Para usar o roteamento por geoproximidade, você deve usar o fluxo de tráfego da Rota 53.
+* Casos de Uso: Por exemplo, você pode querer que todas as consultas da Europa sejam roteadas para uma frota de instâncias do EC2 configuradas especificamente para seus clientes europeus. Esses servidores podem ter o idioma local dos seus clientes europeus e exibir todos os preços em euros.
+
+Geoproximity Routing Policy (Política de Roteamento por Geoproximidade): O roteamento por geoproximidade permite que o Route 53 direcione o tráfego para seus recursos com base na localização geográfica dos seus usuários e recursos. Opcionalmente, você também pode optar por rotear mais ou menos tráfego para um determinado recurso, ajustando um valor conhecido como "tendência". Para usar o roteamento por geoproximidade, você deve utilizar o Route 53 Traffic Flow.
 
 Política de roteamento por latência: use quando tiver recursos em várias Regiões da AWS e quiser rotear o tráfego para a região que ofereça a melhor latência. Você pode usar roteamento por latência para criar registros em uma zona hospedada privada.
   Conjunto de registro de recursos de latência: Para usar o roteamento baseado em latência, você cria um conjunto de registros de recursos de latência para      o recurso EC2 (ou ELB) em cada região que hospeda seu site. Quando o route 53 recebe uma consulta para seu site, ele seleciona o conjunto de registros de recursos de latência para a região que fornece ao usuário a latência mais baixa.
