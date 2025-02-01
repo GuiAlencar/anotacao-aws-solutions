@@ -1235,7 +1235,70 @@ Weighted routing policy (Política de roteamento ponderado): use para encaminhar
 
 ==================================================================================
 CloudFront
+
 O Amazon CloudFront é um serviço de rede de entrega de conteúdo (CDN) criado para alta performance, segurança e conveniência do desenvolvedor.
+
+Rede de Distribuição de Conteúdo (CDN)
+Melhora o desempenho de leitura ao armazenar conteúdo em cache nas localizações de borda (edge locations).
+Melhora a experiência do usuário com menor latência e tempo de carregamento mais rápido.
+216 Pontos de Presença globalmente (localizações de borda) para atender aos usuários em diferentes regiões do mundo.
+Proteção contra DDoS, com integração com AWS Shield e AWS Web Application Firewall (WAF) para maior segurança.
+
+CloudFront – Origens
+S3 bucket
+
+Para distribuir arquivos e armazená-los em cache nas localizações de borda.
+Segurança aprimorada com CloudFront Origin Access Control (OAC), que substitui o Origin Access Identity (OAI).
+CloudFront pode ser usado como ingresso (para enviar arquivos para o S3).
+
+Custom Origin (HTTP)
+
+Application Load Balancer
+Instância EC2
+S3 website (é necessário primeiro habilitar o bucket como um site estático do S3).
+Qualquer backend HTTP que você desejar.
+
+----------------------------------------------------------
+
+CloudFront vs S3 Cross Region Replication
+
+CloudFront:
+Rede de borda global (Pontos de presença espalhados pelo mundo).
+Arquivos são armazenados em cache por um tempo determinado (TTL), geralmente um dia.
+Ideal para conteúdo estático que precisa estar disponível em qualquer lugar do mundo.
+Melhora a experiência do usuário com acesso rápido a conteúdo frequentemente acessado.
+
+S3 Cross Region Replication:
+Requer configuração para cada região onde você deseja que a replicação aconteça.
+Arquivos são atualizados em tempo quase real entre as regiões.
+Somente leitura nas regiões de destino.
+Ideal para conteúdo dinâmico que precisa ser acessado em poucas regiões com baixa latência.
+
+----------------------------------------------------------
+
+CloudFront Geo Restriction
+Restrição de acesso: Você pode limitar quem pode acessar sua distribuição com base na localização geográfica do usuário.
+
+Allowlist:
+Permite o acesso ao conteúdo somente para usuários localizados em países da lista de países aprovados.
+
+Blocklist:
+Impede o acesso ao conteúdo para usuários localizados em países da lista de países proibidos.
+
+A localização do país é determinada utilizando um banco de dados Geo-IP de terceiros.
+
+Caso de uso:
+Leis de direitos autorais para controlar o acesso ao conteúdo com base na localização geográfica dos usuários.
+
+----------------------------------------------------------
+CloudFront – Invalidações de Cache
+
+Quando você atualiza o origin back-end, o CloudFront não sabe sobre a mudança e só buscará o conteúdo atualizado após o tempo de vida (TTL) expirar.
+No entanto, você pode forçar uma atualização completa ou parcial do cache (ignorando o TTL) realizando uma Invalidação do CloudFront.
+
+Você pode invalidar:
+Todos os arquivos (*), ou
+Um caminho específico, como /images/*.
 
 ==================================================================================
 >>>EBS<<<
@@ -1440,16 +1503,6 @@ kineses data firehose -> carrega esses dados para um destino específico, ex.: s
 Kinesis data analytics -> recebe os dados do stream, pode usar um função lambda para fazer a leitura
 
 ==================================================================================
-Aws Storage Gateway -> permite que o servidor on-primisses acessa storage do s3 na aws, logo é um serviço hibrido, usado para backup, tem um sistema de cache gerando uma baixa latência na casa do milisegundos.
-A aws te envia um dispositivo físico chamado storage gateway para usar esse serviço
-usando esse serviço, existem 3 opções:
-File gateway: utiliza o mesmo sistema do s3
-Volume gateway: utiliza como um block storage
-backup gateway: pode ser block storage ou file do s3
-
-O AWS Storage Gateway Tape Gateway permite substituir o uso de fitas físicas no local por fitas virtuais na AWS sem alterar os fluxos de trabalho de backup existentes. O Tape Gateway emula bibliotecas de fitas físicas, elimina o custo e a complexidade do gerenciamento da infraestrutura de fitas físicas e oferece mais durabilidade do que as fitas físicas.
-
-==================================================================================
 SQS -> simpe queue service
 	standart - envia requisições não é em ordem
 	fifo - primeiro a entrar primeiro a sair
@@ -1526,15 +1579,96 @@ Multi-site active/active
 ==================================================================================
 
 AWS Global Accelerator 
+
 O AWS Global Accelerator usa a vasta rede global da AWS sem congestionamento para rotear o tráfego TCP e UDP para um endpoint de aplicativo íntegro na região da AWS mais próxima do usuário.
 
 Isso significa que ele direcionará o tráfego de forma inteligente para o ponto de presença mais próximo (reduzindo a latência). O failover contínuo é garantido, pois o AWS Global Accelerator usa o endereço IP anycast, o que significa que o IP não muda ao fazer failover entre regiões, para que não haja problemas com caches de clientes com entradas incorretas que precisam expirar.
 
 Esta é a única solução que fornece failover determinístico.
 
-==================================================================================
-AWS DataSync
-O AWS DataSync pode ser usado para mover grandes quantidades de dados online entre o armazenamento local e o Amazon S3 ou o Amazon Elastic File System (Amazon EFS). O DataSync elimina ou lida automaticamente com muitas dessas tarefas, incluindo tarefas de cópia de script, agendamento e monitoramento de transferências, validação de dados e otimização da utilização da rede. O datastore de origem pode usar servidores de arquivos que se comunicam usando o protocolo SMB (Server Message Block).
+Global Users for Our Application
+
+Você implantou um aplicativo com usuários globais que desejam acessá-lo diretamente.
+Eles acessam o aplicativo pela internet pública, o que pode adicionar muita latência devido a múltiplos hops.
+O objetivo é minimizar a latência ao passar pela rede AWS, aproveitando a infraestrutura otimizada da AWS.
+
+Solução:
+Global Accelerator: Use o AWS Global Accelerator para direcionar o tráfego de forma inteligente para os pontos de presença (edge locations) mais próximos dos usuários.
+ALB (Application Load Balancer): O tráfego pode ser direcionado por um ALB público, mas isso pode resultar em latência devido aos hops adicionais.
+Com o Global Accelerator, você pode otimizar o caminho de rede, aproveitando a rede global da AWS para reduzir a latência e melhorar a experiência do usuário em regiões como América, Austrália, Europa e Índia.
+
+----------------------
+
+Unicast IP vs Anycast IP
+
+Unicast IP:
+
+Um servidor possui um endereço IP.
+O tráfego é enviado para um único destino (o servidor que possui aquele IP).
+
+Anycast IP:
+
+Vários servidores compartilham o mesmo endereço IP.
+O cliente é roteado para o servidor mais próximo (geralmente, aquele com a menor latência) usando a rede.
+
+Exemplo de uso do Anycast:
+Utilizado em redes de Content Delivery Network (CDN) ou DNS, onde a localização do servidor mais próxima é escolhida automaticamente para melhorar a performance e reduzir a latência.
+
+------------------------
+
+AWS Global Accelerator
+
+O AWS Global Accelerator é um serviço que melhora a performance e disponibilidade de aplicativos para usuários globais. Ele aproveita a rede interna da AWS para rotear o tráfego até seu aplicativo, proporcionando uma redução de latência e uma experiência mais rápida para os usuários.
+
+Como funciona:
+Criação de 2 IPs Anycast:
+O Global Accelerator cria dois endereços IP Anycast para seu aplicativo, que são usados para direcionar o tráfego de forma eficiente.
+
+Roteamento para as Localizações de Edge:
+O tráfego é enviado para as Edge Locations da AWS (pontos de presença ao redor do mundo), que são servidores distribuídos globalmente.
+
+Roteamento para o Aplicativo:
+A partir das Edge Locations, o tráfego é encaminhado de forma otimizada para o destino final do aplicativo, reduzindo a latência ao evitar múltiplos hops e utilizando a rede interna da AWS.
+
+Benefícios:
+Redução da latência: Aproveita a rede interna da AWS, evitando rotas ineficientes pela internet pública.
+Alta disponibilidade: Garante o acesso ao aplicativo mesmo que um endpoint falhe, redirecionando automaticamente o tráfego para o próximo ponto de presença.
+Melhora da performance: Tráfego é direcionado para o local mais próximo do usuário, otimizando a entrega de conteúdo.
+Esse serviço é ideal para aplicações globais que precisam de alta performance e baixa latência, como jogos online, aplicativos de mídia, e-commerce e outras plataformas de grande escala.
+
+----------------------------
+
+Funciona com Elastic IP, instâncias EC2, ALB, NLB, público ou privado
+Desempenho consistente
+Roteamento inteligente para a menor latência e rápido failover regional
+Sem problemas com o cache do cliente (porque o IP não muda)
+Rede interna da AWS
+Verificações de saúde
+O Global Accelerator realiza uma verificação de saúde de suas aplicações.
+Ajuda a tornar sua aplicação global (failover em menos de 1 minuto para instâncias não saudáveis).
+Ótimo para recuperação de desastres (graças às verificações de saúde).
+Segurança
+Apenas 2 IPs externos precisam ser liberados na lista de permissões (whitelisted).
+Proteção contra DDoS graças ao AWS Shield.
+
+-----------------------------
+
+AWS Global Accelerator vs CloudFront
+
+Ambos utilizam a rede global da AWS e suas localizações de borda (edge locations) ao redor do mundo.
+Ambos os serviços integram-se com o AWS Shield para proteção contra DDoS.
+
+CloudFront
+Melhora o desempenho para conteúdo cacheável (como imagens e vídeos).
+Melhora o desempenho para conteúdo dinâmico (como aceleração de APIs e entrega de sites dinâmicos).
+O conteúdo é servido na borda.
+
+Global Accelerator
+Melhora o desempenho para uma ampla gama de aplicativos usando TCP ou UDP.
+Proxy de pacotes na borda para aplicativos em execução em uma ou mais regiões da AWS.
+Ótimo para casos de uso não-HTTP, como jogos (UDP), IoT (MQTT) ou Voz sobre IP (VoIP).
+Bom para casos de uso HTTP que exigem endereços IP estáticos.
+Bom para casos de uso HTTP que exigem failover regional rápido e determinístico.
 
 ==================================================================================
 
@@ -1546,6 +1680,301 @@ Como os problemas nesta instância são causados ​​por baixo desempenho de l
 ==================================================================================
 AWS Glue
 O AWS Glue é um serviço gerenciado de transformação de dados.
+
+==================================================================================
+
+Data Migrations com AWS Snow Family
+
+Desafios:
+• Conectividade limitada
+• Largura de banda limitada
+• Alto custo de rede
+• Largura de banda compartilhada (não é possível maximizar a linha)
+• Estabilidade da conexão
+
+AWS Snow Family: dispositivos offline para realizar migrações de dados
+Se a transferência pela rede levar mais de uma semana, use os dispositivos Snowball!
+
+Processo de Uso do Snow Family
+
+Solicite dispositivos Snowball pelo console da AWS para entrega.
+Instale o cliente Snowball / AWS OpsHub nos seus servidores.
+Conecte o Snowball aos seus servidores e copie os arquivos usando o cliente.
+Envie o dispositivo de volta quando terminar (ele será enviado para a instalação correta da AWS).
+Os dados serão carregados em um bucket S3.
+O Snowball será completamente apagado.
+
+------------
+
+O que é Edge Computing?
+
+Processa dados enquanto eles são criados em uma localização remota (edge).
+Um caminhão na estrada, um navio no mar, uma estação de mineração subterrânea...
+Esses locais podem ter internet limitada e nenhuma infraestrutura computacional disponível.
+Configuramos um dispositivo Snowball Edge ou Snowcone para realizar edge computing.
+Snowcone: 2 CPUs, 4 GB de memória, acesso com ou sem fio.
+Snowball Edge: otimizado para computação (Compute Optimized) ou armazenamento (Storage Optimized).
+Permite rodar instâncias EC2 ou funções Lambda na borda.
+Casos de uso: pré-processamento de dados, aprendizado de máquina, transcodificação de mídia.
+
+------------
+
+Arquitetura da Solução: Snowball para Glacier
+
+O Snowball não pode importar dados diretamente para o Glacier.
+É necessário primeiro enviar os dados para o Amazon S3.
+Em seguida, utilizar uma política de ciclo de vida do S3 para mover os dados para o Glacier automaticamente.
+
+------------
+
+Amazon FSx – Visão Geral
+
+Implanta sistemas de arquivos de alto desempenho de terceiros na AWS.
+Serviço totalmente gerenciado.
+
+Amazon FSx for Windows (File Server)
+
+FSx for Windows é um sistema de arquivos Windows totalmente gerenciado.
+Suporta o protocolo SMB e o sistema de arquivos Windows NTFS.
+Integra-se ao Microsoft Active Directory, com suporte a ACLs e quotas de usuários.
+Pode ser montado em instâncias EC2 Linux.
+Suporta o Microsoft Distributed File System (DFS) Namespaces para agrupar arquivos em múltiplos FS.
+Escalabilidade: até dezenas de GB/s, milhões de IOPS e centenas de PB de dados.
+Opções de Armazenamento:
+SSD: Para workloads sensíveis à latência (bancos de dados, processamento de mídia, análise de dados, etc.).
+HDD: Para uma ampla gama de workloads (diretórios pessoais, CMS, etc.).
+Outros Recursos:
+Pode ser acessado a partir da sua infraestrutura on-premises via VPN ou Direct Connect.
+Suporte a configuração Multi-AZ para alta disponibilidade.
+Os dados são backupados diariamente no Amazon S3.
+
+------------
+
+Amazon FSx for Lustre
+
+Lustre é um sistema de arquivos distribuído paralelo, projetado para computação em larga escala.
+O nome Lustre vem da junção de "Linux" e "Cluster".
+Usado em Machine Learning, High Performance Computing (HPC), processamento de vídeo, modelagem financeira e automação de design eletrônico.
+Escalabilidade: até centenas de GB/s, milhões de IOPS e latências abaixo de 1 ms.
+Opções de Armazenamento:
+SSD: Para workloads de baixa latência, alta demanda de IOPS, arquivos pequenos e operações aleatórias.
+HDD: Para workloads com alto throughput, arquivos grandes e operações sequenciais.
+Integração com S3:
+Permite ler diretamente do S3 como um sistema de arquivos através do FSx.
+Pode escrever os resultados dos cálculos de volta para o S3 através do FSx.
+Outros Recursos:
+Pode ser acessado a partir de servidores on-premises via VPN ou Direct Connect.
+
+FSx for Lustre - Opções de Implantação do Sistema de Arquivos
+
+1. Scratch File System
+ Armazenamento temporário.
+ Os dados não são replicados (se o servidor falhar, os dados são perdidos).
+ Alto desempenho com picos de velocidade (até 6x mais rápido, 200 MBps por TiB).
+ Uso recomendado:
+  Processamento de curto prazo.
+  Otimização de custos.
+
+2. Persistent File System
+ Armazenamento de longo prazo.
+ Os dados são replicados dentro da mesma AZ.
+ Arquivos perdidos podem ser recuperados em minutos.
+ Uso recomendado:
+  Processamento de longo prazo.
+  Dados sensíveis que exigem alta disponibilidade.
+
+------------
+
+Amazon FSx for NetApp ONTAP
+
+Serviço gerenciado do NetApp ONTAP na AWS.
+Sistema de arquivos compatível com os protocolos NFS, SMB e iSCSI.
+Permite migrar workloads que já rodam em ONTAP ou NAS para a AWS.
+
+Compatível com:
+Linux, Windows e macOS
+VMware Cloud on AWS
+Amazon Workspaces & AppStream 2.0
+Amazon EC2, ECS e EKS
+
+Recursos:
+Armazenamento elástico: cresce ou diminui automaticamente.
+Snapshots e replicação para proteção de dados.
+Baixo custo, compressão e desduplicação de dados.
+Clone instantâneo em um ponto no tempo, útil para testes de novos workloads.
+
+------------
+
+Amazon FSx for OpenZFS
+
+Serviço gerenciado do OpenZFS na AWS.
+Sistema de arquivos compatível com NFS (v3, v4, v4.1, v4.2).
+Permite migrar workloads que já utilizam ZFS para a AWS.
+
+Compatível com:
+Linux, Windows e macOS
+VMware Cloud on AWS
+Amazon Workspaces & AppStream 2.0
+Amazon EC2, ECS e EKS
+
+Recursos:
+Até 1.000.000 IOPS com latência abaixo de 0.5 ms.
+Snapshots, compressão e armazenamento de baixo custo.
+Clone instantâneo em um ponto no tempo, útil para testes de novos workloads
+
+------------
+
+AWS Storage Gateway
+Ponte entre dados on-premises e dados na nuvem.
+
+Casos de uso:
+Recuperação de desastres.
+Backup e restauração.
+Armazenamento em camadas.
+Cache on-premises e acesso a arquivos de baixa latência.
+
+Tipos de Storage Gateway:
+S3 File Gateway
+FSx File Gateway
+Volume Gateway
+Tape Gateway
+
+Aws Storage Gateway -> permite que o servidor on-primisses acessa storage do s3 na aws, logo é um serviço hibrido, usado para backup, tem um sistema de cache gerando uma baixa latência na casa do milisegundos.
+A aws te envia um dispositivo físico chamado storage gateway para usar esse serviço
+usando esse serviço, existem 3 opções:
+File gateway: utiliza o mesmo sistema do s3
+Volume gateway: utiliza como um block storage
+backup gateway: pode ser block storage ou file do s3
+
+O AWS Storage Gateway Tape Gateway permite substituir o uso de fitas físicas no local por fitas virtuais na AWS sem alterar os fluxos de trabalho de backup existentes. O Tape Gateway emula bibliotecas de fitas físicas, elimina o custo e a complexidade do gerenciamento da infraestrutura de fitas físicas e oferece mais durabilidade do que as fitas físicas.
+
+------------
+
+Amazon S3 File Gateway
+
+Buckets configurados no S3 são acessíveis utilizando os protocolos NFS e SMB.
+Os dados mais recentemente acessados são armazenados em cache no File Gateway.
+Suporta as classes de armazenamento do S3:
+ S3 Standard
+ S3 Standard-IA
+ S3 One Zone-IA
+ S3 Intelligent Tiering
+Transição para o S3 Glacier pode ser feita usando uma Política de Ciclo de Vida.
+O acesso aos buckets é controlado por funções IAM específicas para cada File Gateway.
+O protocolo SMB tem integração com o Active Directory (AD) para autenticação de usuários.
+
+------------
+Amazon FSx File Gateway
+
+Acesso nativo ao Amazon FSx for Windows File Server.
+Cache local para dados acessados com frequência.
+Compatibilidade nativa com Windows (SMB, NTFS, Active Directory, etc.).
+Útil para compartilhamento de arquivos em grupo e diretórios pessoais.
+
+------------
+Volume Gateway
+
+Armazenamento em bloco utilizando o protocolo iSCSI, com suporte de S3.
+Backups baseados em snapshots do EBS, que ajudam a restaurar volumes on-premises.
+Volumes em cache: acesso de baixa latência aos dados mais recentes.
+Volumes armazenados: o conjunto completo de dados fica on-premises, com backups agendados para o S3.
+
+------------
+Tape Gateway
+
+Algumas empresas ainda utilizam fitas físicas para seus processos de backup.
+Com o Tape Gateway, as empresas podem manter os mesmos processos, mas na nuvem.
+Virtual Tape Library (VTL), com suporte ao Amazon S3 e Glacier.
+Realiza o backup de dados utilizando processos baseados em fitas existentes (e interface iSCSI).
+Compatível com os principais fornecedores de software de backup.
+
+------------
+
+Storage Gateway – Hardware Appliance
+
+Ao utilizar o Storage Gateway, é necessário ter virtualização on-premises.
+Se isso não for viável, pode-se usar um Storage Gateway Hardware Appliance.
+O appliance pode ser comprado no amazon.com.
+Funciona com File Gateway, Volume Gateway e Tape Gateway.
+Inclui os recursos necessários de CPU, memória, rede e cache SSD.
+Útil para backups diários via NFS em pequenos data centers.
+
+==================================================================================
+
+AWS Transfer Family
+
+Serviço totalmente gerenciado para transferências de arquivos para dentro e para fora do Amazon S3 ou Amazon EFS, utilizando o protocolo FTP.
+Protocolos Suportados:
+AWS Transfer for FTP (File Transfer Protocol).
+AWS Transfer for FTPS (File Transfer Protocol over SSL).
+AWS Transfer for SFTP (Secure File Transfer Protocol).
+
+Características:
+
+Infraestrutura gerenciada, escalável, confiável e altamente disponível (multi-AZ).
+Pagamento por endpoint provisionado por hora e transferências de dados em GB.
+Armazena e gerencia as credenciais dos usuários dentro do serviço.
+Integração com sistemas de autenticação existentes (Microsoft Active Directory, LDAP, Okta, Amazon Cognito, personalizados).
+
+Casos de uso:
+Compartilhamento de arquivos, conjuntos de dados públicos, CRM, ERP, entre outros.
+
+------------
+
+AWS DataSync
+
+O AWS DataSync pode ser usado para mover grandes quantidades de dados online entre o armazenamento local e o Amazon S3 ou o Amazon Elastic File System (Amazon EFS). O DataSync elimina ou lida automaticamente com muitas dessas tarefas, incluindo tarefas de cópia de script, agendamento e monitoramento de transferências, validação de dados e otimização da utilização da rede. O datastore de origem pode usar servidores de arquivos que se comunicam usando o protocolo SMB (Server Message Block).
+
+Movimento de grandes quantidades de dados para dentro e fora da AWS.
+
+Fontes e Destinos de Transferência:
+ On-premises / outras nuvens para AWS (NFS, SMB, HDFS, S3 API...), requer agente.
+ AWS para AWS (diferentes serviços de armazenamento), não é necessário agente.
+
+Destinos de sincronização suportados:
+ Amazon S3 (todas as classes de armazenamento, incluindo Glacier).
+ Amazon EFS.
+ Amazon FSx (Windows, Lustre, NetApp, OpenZFS, etc.).
+
+Características:
+ As tarefas de replicação podem ser agendadas em intervalos horários, diários ou semanais.
+ Permissões de arquivos e metadados são preservados (NFS POSIX, SMB, etc.).
+ Uma tarefa com agente pode transferir dados a uma taxa de 10 Gbps, com a possibilidade de configurar um limite de largura de banda.
+
+------------
+
+AWS DataSync – Transferência entre Serviços de Armazenamento da AWS
+
+AWS DataSync permite transferir dados de forma eficiente entre diferentes serviços de armazenamento da AWS.
+Não é necessário utilizar agente quando a transferência ocorre dentro da AWS (por exemplo, de Amazon S3 para Amazon EFS, ou entre diferentes instâncias do Amazon FSx).
+
+Exemplos de Transferência entre Serviços AWS:
+
+Amazon S3 para Amazon EFS
+Amazon S3 para Amazon FSx (Windows, Lustre, NetApp, OpenZFS)
+Amazon EFS para Amazon FSx
+
+A ferramenta é ideal para migrar dados entre diferentes camadas de armazenamento da AWS ou entre diferentes regiões da nuvem, sem complicação, garantindo alta performance e preservação dos metadados.
+
+==================================================================================
+Comparação de Armazenamento da AWS
+
+S3: Armazenamento de objetos (ideal para armazenar dados como arquivos, imagens e backups).
+S3 Glacier: Arquivamento de objetos (solução de baixo custo para armazenar dados raramente acessados).
+EBS volumes: Armazenamento em rede para uma instância EC2 por vez (para volumes persistentes de dados).
+Instance Storage: Armazenamento físico para a sua instância EC2 (oferece alto IOPS e desempenho rápido).
+EFS: Sistema de arquivos em rede para instâncias Linux, compatível com POSIX (acesso simultâneo de múltiplas instâncias).
+FSx for Windows: Sistema de arquivos em rede para servidores Windows (suporta SMB e NTFS).
+FSx for Lustre: Sistema de arquivos de alto desempenho para computação de alto desempenho (HPC) em Linux.
+FSx for NetApp ONTAP: Compatibilidade de sistemas operacionais e protocolos (suporta NFS, SMB, iSCSI).
+FSx for OpenZFS: Sistema de arquivos gerenciado baseado no ZFS, ideal para workloads de dados intensivos.
+Storage Gateway: Integração entre S3 e FSx com File Gateway, Volume Gateway (cache e armazenado) e Tape Gateway.
+Transfer Family: Interface FTP, FTPS, SFTP sobre Amazon S3 ou Amazon EFS.
+DataSync: Agendamento de sincronização de dados on-premises para AWS, ou AWS para AWS.
+Snowcone / Snowball / Snowmobile: Soluções físicas para mover grandes quantidades de dados para a nuvem.
+Database: Armazenamento especializado para workloads específicos, geralmente com indexação e consultas (ex: Amazon RDS, DynamoDB).
+
+
 
 
 
