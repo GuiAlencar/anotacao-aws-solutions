@@ -1545,36 +1545,100 @@ consegue filtrar permissões em sites, o que pode ou não acessar num site de cu
 AMAZON ATHENA -> é um serviço de análise interativo e sem servidor criado em frameworks de código aberto, com suporte a formatos de tabela e arquivo abertos. O Athena fornece uma maneira simplificada e flexível de analisar petabytes de dados onde eles residem. Analise dados ou crie aplicações a partir de um data lake do Amazon Simple Storage Service (S3) e mais de 30 fontes de dados, incluindo fontes de dados on-premises ou outros sistemas em nuvem usando SQL ou Python. O Athena é construído com mecanismos Trino e Presto de código aberto e frameworks Apache Spark, sem necessidade de provisionamento ou configuração.
 
 ==================================================================================
+Disaster Recovery Overview
+
+- Qualquer evento que tenha um impacto negativo na continuidade dos negócios ou nas finanças de uma empresa é um desastre.
+- Recuperação de desastres (Disaster Recovery - DR) é sobre se preparar e se recuperar de um desastre.
+- Que tipo de recuperação de desastres?
+- On-premise => On-premise: DR tradicional, e muito caro.
+- On-premise => Nuvem AWS: recuperação híbrida.
+- Região AWS Cloud A => Região AWS Cloud B.
+- É necessário definir dois termos:
+- RPO: Objetivo de Ponto de Recuperação (Recovery Point Objective).
+- RTO: Objetivo de Tempo de Recuperação (Recovery Time Objective).
+
+
+------------------------------------------------------
+
 Opções de recuperação de desastres na nuvem
 
 Backup & Restore
-	RPO/RTO: HOURS
-	* Lower priority use cases
-	* Provision all aws resources after event
-	* Restore backup after event
-	* Cost $
+	RPO/RTO: horas
+	* casos de uso de prioridade mais baixa
+	* provisionar todos os recursos da aws após o evento
+	* restaurar backups após evento
+	* custo baixo $
+
+------------------------------------------------------
 
 Pilot Light
-	RPO/RTO:10S of minutes
-	* Data live
-	* services idle
-	* Provision some aws resources and scale after event
-	* Cost: $$
+	RPO/RTO:10S de minutos
+	* dados ao vivo
+	* serviços ociosos
+	* provisionar alguns recursos da aws e dimensionar após o evento
+	* custo: $$
+
+Uma versão reduzida da aplicação está sempre em execução na nuvem.
+Útil para o núcleo crítico (pilot light).
+Muito semelhante ao método de Backup e Restauração.
+Mais rápido do que Backup e Restauração, pois os sistemas críticos já estão ativos.
+
+------------------------------------------------------
 
 Warm standby
 	RPO/RTO: Minutes
-	* Always running, but smaller
-	* Business critical
-	* Scale aws resources after event
-	* cost $$$
+	* sempre funcionando, mas menor
+	* critico para os negócios
+	* dimensione os recursos da aws após o evento
+	* custo $$$
 Essa solução atende ao requisito de um RTO de cinco minutos com uma instância em execução mínima. As instâncias são executadas com baixa capacidade e podem ser dimensionadas em minutos.
 
+O sistema completo está ativo e em funcionamento, mas com tamanho mínimo.
+Em caso de desastre, é possível escalar para a carga de produção.
+
+------------------------------------------------------
+
 Multi-site active/active
-	RPO/RTO: Real-time
-	* zero downtime
-	* Near zero data loss
-	* Mission critical services
-	* cost $$$$
+	RPO/RTO: tempo real
+	* tempo de inatividade zero
+	* perda de dados quase nula
+	* serviços de missão crítica
+	* custo $$$$
+
+RTO muito baixo (em minutos ou segundos) – extremamente caro.
+Escala completa de produção está em execução tanto na AWS quanto no ambiente On-Premise.
+
+------------------------------------------------------
+
+Dicas para Recuperação de Desastres
+
+Backup:
+
+Snapshots do EBS, backups automáticos / Snapshots do RDS, etc.
+Envio regular de dados para S3 / S3 IA / Glacier, com Políticas de Ciclo de Vida e Replicação entre Regiões.
+Para ambientes On-Premise: uso do Snowball ou Storage Gateway.
+
+Alta Disponibilidade:
+
+Use o Route53 para migrar DNS de uma Região para outra.
+Utilize RDS Multi-AZ, ElastiCache Multi-AZ, EFS e S3.
+Configure VPN Site-to-Site como recuperação para o Direct Connect.
+
+Replicação:
+
+Replicação do RDS (entre Regiões), AWS Aurora com Bancos de Dados Globais.
+Replicação de banco de dados de ambientes On-Premise para RDS.
+Uso do Storage Gateway.
+
+Automação:
+
+Utilize CloudFormation ou Elastic Beanstalk para recriar um ambiente totalmente novo.
+Recupere ou reinicie instâncias EC2 com o CloudWatch, caso alarmes falhem.
+Configure funções AWS Lambda para automações personalizadas.
+
+Caos:
+
+A Netflix utiliza uma "simian-army" para encerrar aleatoriamente instâncias EC2, testando a resiliência do sistema.
 
 ==================================================================================
 
@@ -1683,6 +1747,7 @@ O AWS Glue é um serviço gerenciado de transformação de dados.
 
 ==================================================================================
 
+<<<<<<< HEAD
 Data Migrations com AWS Snow Family
 
 Desafios:
@@ -1976,6 +2041,17 @@ Database: Armazenamento especializado para workloads específicos, geralmente co
 
 
 
+=======
+DMS – Serviço de Migração de Banco de Dados (Database Migration Service)
+
+- Migra bancos de dados para a AWS de forma rápida e segura, com resiliência e capacidade de autorrecuperação.
+- O banco de dados de origem permanece disponível durante a migração.
+- Suporta:
+	* Migrações homogêneas: ex. Oracle para Oracle.
+	* Migrações heterogêneas: ex. Microsoft SQL Server para Aurora.
+- Replicação contínua de dados utilizando CDC (Change Data Capture).
+- É necessário criar uma instância EC2 para executar as tarefas de replicação.
+>>>>>>> c8712ca2d6b67886bb860c26d3d86adaa8e34397
 
 
 
