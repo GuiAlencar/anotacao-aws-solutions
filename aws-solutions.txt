@@ -1747,7 +1747,6 @@ O AWS Glue é um serviço gerenciado de transformação de dados.
 
 ==================================================================================
 
-<<<<<<< HEAD
 Data Migrations com AWS Snow Family
 
 Desafios:
