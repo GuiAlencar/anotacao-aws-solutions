@@ -258,9 +258,10 @@ Retenção Legais
   removida. As retenções legais podem ser colocadas e removidas livremente por qualquer usuário que tenha a permissão s3:PutObjectLegalHold
 
 Glacier Vault Lock
-* O s3 glacier vault lock permite implantar e impor facilmente controles de conformidade para s3 glacier vaults com uma politica de bloqueio de vault. 
-  Você pode especificar controles, como WORM, em um politica de bloqueio de vault e bloquear a politica contra edições futuras. Depois de bloqueada, a 
-  politica não poderá mais ser alterada.
+* Adota um modelo WORM (Write Once, Read Many).
+* Criação de uma Vault Lock Policy.
+* Travar a política para edições futuras (não poderá mais ser alterada ou excluída).
+* Útil para conformidade e retenção de dados.
 --------------------------------------------------
 criptografia do S3
 Encryption in transit: SSL/TLS, HTTPS
@@ -285,7 +286,63 @@ cliente-side encryption
  Enforcing Encryption
  * aplicando criptografia com uma politica de bucket
  * uma politica de bucket pode negar todas as solicitações PUT que não incluam o parâmetro x-amz-server-side-encryption no cabeçalho da solicitação.
+ 
+------------------------------------
 
+Amazon S3 – Criptografia de Objetos
+Você pode criptografar objetos em buckets do S3 usando um dos 4 métodos:
+
+Criptografia no Lado do Servidor (SSE)
+	* Criptografia no Lado do Servidor com Chaves Gerenciadas pelo Amazon S3 (SSE-S3) – Habilitada por padrão
+	* Criptografa objetos no S3 usando chaves manipuladas, gerenciadas e de propriedade da AWS.	
+	* Criptografia usando chaves manipuladas, gerenciadas e de propriedade da AWS.
+	* O objeto é criptografado no lado do servidor.
+	* O tipo de criptografia utilizado é AES-256.
+	É necessário definir o cabeçalho:
+	  "x-amz-server-side-encryption": "AES256"
+	* Habilitado por padrão para novos buckets e novos objetos.
+	
+Criptografia no Lado do Servidor com Chaves KMS armazenadas no AWS KMS (SSE-KMS)
+	* Utiliza o AWS Key Management Service (AWS KMS) para gerenciar as chaves de criptografia.
+	* Criptografia usando chaves manipuladas e gerenciadas pelo AWS KMS (Key Management Service).
+	* Vantagens do KMS:
+		Maior controle do usuário sobre as chaves.
+		Possibilidade de auditar o uso das chaves usando o AWS CloudTrail.
+	* O objeto é criptografado no lado do servidor.
+	É necessário definir o cabeçalho:
+	  "x-amz-server-side-encryption": "aws:kms"
+	
+Criptografia no Lado do Servidor com Chaves Fornecidas pelo Cliente (SSE-C)
+	* Quando você deseja gerenciar suas próprias chaves de criptografia.
+	* Criptografia no lado do servidor usando chaves totalmente gerenciadas pelo cliente fora da AWS.
+	* O Amazon S3 NÃO armazena a chave de criptografia fornecida pelo cliente.
+	* O uso de HTTPS é obrigatório para proteger a transmissão da chave.
+	* A chave de criptografia deve ser fornecida nos cabeçalhos HTTP em todas as requisições HTTP feitas.
+	
+Criptografia no Lado do Cliente
+	* Utiliza bibliotecas de criptografia no lado do cliente, como a Amazon S3 Client-Side Encryption Library.
+	* O cliente deve criptografar os dados antes de enviá-los para o Amazon S3.
+	* O cliente também deve descriptografar os dados ao recuperá-los do Amazon S3.
+	* O cliente gerencia completamente as chaves e o ciclo de criptografia.
+
+Amazon S3 – Criptografia em Trânsito (SSL/TLS)
+A criptografia em trânsito também é chamada de SSL/TLS.
+O Amazon S3 expõe dois endpoints:
+	Endpoint HTTP – não criptografado.
+	Endpoint HTTPS – criptografia em trânsito.
+Recomenda-se o uso de HTTPS.
+HTTPS é obrigatório para SSE-C.
+A maioria dos clientes usa o endpoint HTTPS por padrão.
+
+--------------------------------------------------
+O que é CORS?
+CORS (Cross-Origin Resource Sharing) – Compartilhamento de Recursos entre Origens Diferentes.
+Origem (Origin) = esquema (protocolo) + host (domínio) + porta.
+	Exemplo: https://www.example.com (a porta implícita é 443 para HTTPS e 80 para HTTP).
+Mecanismo baseado em navegador que permite requisições para outras origens enquanto visita a origem principal.
+Mesma origem: http://example.com/app1 & http://example.com/app2.
+Origens diferentes: http://www.example.com & http://other.example.com.
+As requisições não serão atendidas a menos que a outra origem permita usando Cabeçalhos CORS (exemplo: Access-Control-Allow-Origin).
 
 --------------------------------------------------
 
@@ -322,7 +379,7 @@ S3 performance:Downloads
   * exemplo, arquivo de 5 GB pode baixar 1 GB por vez 
 
 --------------------------------------------------
-Replicaçõ S3
+Replicação S3
 * você pode replicar objetos de um bucket para outro, o controle de versão deve estar habilitado nos buckets de origem e de destino
 * os objetos em um bucket existente não são replicados automaticamente, depois que a replicação for ativada, todos os objetos atualizados subsequentes
   serão replicados automaticamente
