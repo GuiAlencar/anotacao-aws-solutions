@@ -2095,8 +2095,6 @@ DataSync: Agendamento de sincronização de dados on-premises para AWS, ou AWS p
 Snowcone / Snowball / Snowmobile: Soluções físicas para mover grandes quantidades de dados para a nuvem.
 Database: Armazenamento especializado para workloads específicos, geralmente com indexação e consultas (ex: Amazon RDS, DynamoDB).
 
-
-
 =======
 DMS – Serviço de Migração de Banco de Dados (Database Migration Service)
 
@@ -2107,11 +2105,3 @@ DMS – Serviço de Migração de Banco de Dados (Database Migration Service)
 	* Migrações heterogêneas: ex. Microsoft SQL Server para Aurora.
 - Replicação contínua de dados utilizando CDC (Change Data Capture).
 - É necessário criar uma instância EC2 para executar as tarefas de replicação.
->>>>>>> c8712ca2d6b67886bb860c26d3d86adaa8e34397
-
-
-
-
-
-
-
