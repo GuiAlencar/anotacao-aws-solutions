@@ -1207,16 +1207,45 @@ redis -> key-value e só o redis trabalha com multi-az
 ----------------------------------------------------------
 
 ***Redshift***
-warehouse (armazem)
-colunas (read)
-inicia com 160 Gigas
-compressão de dados
 
-tipos:
-single node -> 1 instancia de db
-compute node -> 128 instancia de db
+Visão Geral do Amazon Redshift 
+- O Redshift é baseado no PostgreSQL, mas não é usado para OLTP.
+- É um banco de dados OLAP (Online Analytical Processing) voltado para análises e data warehousing.
+- Desempenho 10x superior a outros data warehouses, podendo escalar para petabytes de dados.
+- Armazena os dados em formato colunar (em vez de baseado em linhas) e possui um motor de consultas paralelas.
+- Oferece dois modos:
+  - Cluster Provisionado
+  - Cluster Serverless
+- Possui uma interface SQL para execução de consultas.
+- Ferramentas de BI como Amazon QuickSight e Tableau podem ser integradas.
+- Comparação com Athena:
+  - Redshift é mais rápido para consultas complexas, joins e agregações, graças ao uso de índices.
 
-mpp -> leitura mais rápida, mas não é multi-az
+Redshift Cluster 
+- Nó líder (Leader Node): Responsável pelo planejamento das consultas e agregação dos resultados.
+- Nó de computação (Compute Node): Executa as consultas e envia os resultados para o nó líder.
+Modo Provisionado:
+ - Permite escolher os tipos de instância antecipadamente.
+ - Possibilidade de reservar instâncias para economia de custos.
+
+
+Redshift – Snapshots & Recuperação de Desastres (DR)
+- O Redshift possui o modo Multi-AZ para alguns clusters.
+- Snapshots são backups pontuais de um cluster, armazenados internamente no S3.
+- Os snapshots são incrementais (somente as alterações são salvas).
+- É possível restaurar um snapshot em um novo cluster.
+- Tipos de Snapshots:
+ - Automáticos:
+   - Criados a cada 8 horas, a cada 5 GB de alterações ou conforme um agendamento.
+   - O tempo de retenção pode ser definido entre 1 a 35 dias.
+ - Manuais:
+   - Retidos até serem excluídos manualmente.
+- O Amazon Redshift pode ser configurado para copiar snapshots automaticamente (automáticos ou manuais) para outra Região da AWS.
+
+Redshift Spectrum 
+- Permite consultar dados diretamente no S3 sem a necessidade de carregá-los para o Redshift.
+- É necessário ter um cluster do Redshift disponível para iniciar a consulta.
+- A consulta é distribuída para milhares de nós do Redshift Spectrum, garantindo alta performance.
 
 ----------------------------------------------------------
 
@@ -1559,6 +1588,31 @@ Kinesis data stream recebe os dados, armazena e indexa para a próxima etapa, 24
 kineses data firehose -> carrega esses dados para um destino específico, ex.: s3   | 0 horas
 Kinesis data analytics -> recebe os dados do stream, pode usar um função lambda para fazer a leitura
 
+Kinesis Data Analytics (Aplicação SQL)
+
+  Análise em tempo real em Kinesis Data Streams e Firehose usando SQL.
+  Adicione dados de referência do Amazon S3 para enriquecer os dados de streaming.
+  Totalmente gerenciado, sem necessidade de provisionar servidores.
+  Escalabilidade automática.
+  Pagamento pelo consumo real.
+Saídas:
+  Kinesis Data Streams: Crie streams a partir das consultas de análise em tempo real.
+  Kinesis Data Firehose: Envie os resultados das consultas de análise para destinos.
+Casos de uso:
+  Análise de séries temporais.
+  Painéis em tempo real.
+  Métricas em tempo real.
+
+Kinesis Data Analytics for Apache Flink 
+Use Flink (Java, Scala ou SQL) para processar e analisar dados de streaming.
+Execute qualquer aplicação Apache Flink em um cluster gerenciado na AWS.
+Provisionamento de recursos de computação, computação paralela, escalabilidade automática.
+Backups de aplicação (implementados como checkpoints e snapshots).
+Utilize qualquer recurso de programação do Apache Flink.
+Flink não lê diretamente do Firehose (use o Kinesis Analytics para SQL em vez disso).
+
+
+
 ==================================================================================
 SQS -> simpe queue service
 	standart - envia requisições não é em ordem
@@ -1599,9 +1653,7 @@ fazer login com o google ou facebook, github
 consegue filtrar permissões em sites, o que pode ou não acessar num site de curso
 
 ==================================================================================
-AMAZON ATHENA -> é um serviço de análise interativo e sem servidor criado em frameworks de código aberto, com suporte a formatos de tabela e arquivo abertos. O Athena fornece uma maneira simplificada e flexível de analisar petabytes de dados onde eles residem. Analise dados ou crie aplicações a partir de um data lake do Amazon Simple Storage Service (S3) e mais de 30 fontes de dados, incluindo fontes de dados on-premises ou outros sistemas em nuvem usando SQL ou Python. O Athena é construído com mecanismos Trino e Presto de código aberto e frameworks Apache Spark, sem necessidade de provisionamento ou configuração.
 
-==================================================================================
 Disaster Recovery Overview
 
 - Qualquer evento que tenha um impacto negativo na continuidade dos negócios ou nas finanças de uma empresa é um desastre.
@@ -1801,6 +1853,22 @@ Como os problemas nesta instância são causados ​​por baixo desempenho de l
 ==================================================================================
 AWS Glue
 O AWS Glue é um serviço gerenciado de transformação de dados.
+
+Serviço gerenciado de extração, transformação e carregamento (ETL).
+Útil para preparar e transformar dados para análises.
+Serviço totalmente sem servidor (serverless).
+
+Glue – Pontos importantes para saber de forma geral 
+
+ - Glue Job Bookmarks: Impede o reprocessamento de dados antigos.
+ - Glue Elastic Views:
+   - Combina e replica dados através de múltiplos data stores usando SQL.
+   - Sem código personalizado, o Glue monitora mudanças nos dados de origem, serverless.
+   - Utiliza uma "tabela virtual" (view materializada).
+Glue DataBrew: Limpeza e normalização de dados usando transformações pré-construídas.
+Glue Studio: Nova interface gráfica (GUI) para criar, executar e monitorar jobs ETL no Glue.
+Glue Streaming ETL (construído em Apache Spark Structured Streaming):
+  - Compatível com Kinesis Data Streaming, Kafka, MSK (Kafka gerenciado).
 
 ==================================================================================
 
@@ -2095,7 +2163,7 @@ DataSync: Agendamento de sincronização de dados on-premises para AWS, ou AWS p
 Snowcone / Snowball / Snowmobile: Soluções físicas para mover grandes quantidades de dados para a nuvem.
 Database: Armazenamento especializado para workloads específicos, geralmente com indexação e consultas (ex: Amazon RDS, DynamoDB).
 
-=======
+==================================================================================
 DMS – Serviço de Migração de Banco de Dados (Database Migration Service)
 
 - Migra bancos de dados para a AWS de forma rápida e segura, com resiliência e capacidade de autorrecuperação.
@@ -2105,3 +2173,302 @@ DMS – Serviço de Migração de Banco de Dados (Database Migration Service)
 	* Migrações heterogêneas: ex. Microsoft SQL Server para Aurora.
 - Replicação contínua de dados utilizando CDC (Change Data Capture).
 - É necessário criar uma instância EC2 para executar as tarefas de replicação.
+
+
+==================================================================================
+
+Amazon Athena
+
+Serviço de consulta serverless para analisar dados armazenados no Amazon S3.
+Utiliza a linguagem SQL padrão para consultar os arquivos (baseado no Presto).
+Suporta CSV, JSON, ORC, Avro e Parquet.
+Preço: $5,00 por TB de dados analisados.
+Comumente usado com o Amazon QuickSight para relatórios/painéis de controle.
+Casos de uso:
+  Business Intelligence (BI), análise e relatórios.
+  Análise de logs: VPC Flow Logs, ELB Logs, CloudTrail Trails, etc.
+Dica para prova:
+ Para analisar dados no S3 usando SQL serverless, utilize o Athena.
+
+------------
+Amazon Athena – Melhoria de Desempenho 
+
+- Use dados em formato colunar para reduzir custos (menos dados escaneados).
+- Apache Parquet ou ORC são recomendados.
+- Grande melhoria no desempenho.
+- Use o AWS Glue para converter seus dados para Parquet ou ORC.
+- Comprimir os dados reduz o tamanho das consultas (bzip2, gzip, lz4, snappy, zlib, zstd…).
+- Particione conjuntos de dados no S3 para facilitar consultas em colunas virtuais:
+
+s3://seuBucket/caminhoParaTabela/
+<NOME_DA_PARTIÇÃO>=<VALOR>
+<NOME_DA_PARTIÇÃO>=<VALOR>
+<NOME_DA_PARTIÇÃO>=<VALOR>
+
+Exemplo: s3://athena-examples/flight/parquet/year=1991/month=1/day=1/
+Use arquivos maiores (> 128 MB) para minimizar overhead
+
+------------
+
+Amazon Athena – Consulta Federada
+- Permite executar consultas SQL em dados armazenados em fontes relacionais, não relacionais, objetos e fontes personalizadas (AWS ou on-premises).
+- Usa Conectores de Fonte de Dados, que rodam no AWS Lambda, para executar consultas federadas (ex.: CloudWatch Logs, DynamoDB, RDS, etc.).
+- Os resultados das consultas podem ser armazenados no Amazon S3.
+
+==================================================================================
+
+Amazon OpenSearch Service
+O Amazon OpenSearch é o sucessor do Amazon Elasticsearch.
+No DynamoDB, as consultas só podem ser feitas pela chave primária ou índices.
+Com o OpenSearch, você pode pesquisar qualquer campo, incluindo correspondências parciais.
+É comum usar o OpenSearch como complemento a outro banco de dados.
+Dois modos:
+ - Cluster gerenciado
+ - Cluster serverless
+Não suporta SQL nativamente (pode ser habilitado via um plugin).
+Ingestão de dados a partir do Kinesis Data Firehose, AWS IoT e CloudWatch Logs.
+Segurança através de Cognito & IAM, criptografia KMS e TLS.
+Vem com o OpenSearch Dashboards (para visualização de dados).
+
+==================================================================================
+
+Amazon EMR 
+EMR significa "Elastic MapReduce".
+O EMR ajuda a criar clusters Hadoop (Big Data) para analisar e processar grandes volumes de dados.
+Os clusters podem ser compostos por centenas de instâncias EC2.
+O EMR vem com Apache Spark, HBase, Presto, Flink, entre outros.
+O EMR cuida de todo o provisionamento e configuração.
+Oferece autoescalabilidade e integração com instâncias Spot.
+Casos de uso:
+ - Processamento de dados
+ - Aprendizado de máquina
+ - Indexação de sites
+ - Big Data
+
+
+Amazon EMR – Tipos de Nós e Opções de Compra 
+Nó Mestre (Master Node): Gerencia o cluster, coordena as operações e gerencia a saúde – execução prolongada.
+Nó Core (Core Node): Executa tarefas e armazena dados – execução prolongada.
+Nó de Tarefa (Task Node) (opcional): Apenas para executar tarefas – geralmente instâncias Spot.
+Opções de Compra:
+ - On-demand (Sob demanda): Confiável, previsível, não será terminado.
+ - Reserved (Reservado) (mínimo de 1 ano): Economia de custos (o EMR usará automaticamente se disponível).
+ - Instâncias Spot: Mais baratas, podem ser terminadas, menos confiáveis.
+Pode-se ter cluster de longa duração ou cluster temporário (transitório).
+
+==================================================================================
+
+Amazon QuickSight 
+
+Serviço de business intelligence sem servidor, alimentado por machine learning, para criar painéis interativos.
+Rápido, automaticamente escalável, incorporável, com preço por sessão.
+Casos de uso:
+ - Análise de negócios
+ - Criação de visualizações
+ - Execução de análises ad-hoc
+ - Obtenção de insights de negócios utilizando dados
+ - Integrado com RDS, Aurora, Athena, Redshift, S3, etc.
+ - Cálculo em memória usando o motor SPICE, caso os dados sejam importados para o QuickSight.
+ - Edição Enterprise: Possibilidade de configurar segurança de nível de coluna (CLS).
+
+QuickSight – Painéis e Análise 🚀
+Defina usuários (versão padrão) e grupos (versão enterprise).
+Esses usuários e grupos existem somente dentro do QuickSight, não no IAM.
+Um painel (Dashboard):
+ - É um snapshot somente leitura de uma análise que pode ser compartilhado.
+ - Preserva a configuração da análise (filtros, parâmetros, controles, ordenação).
+ - Você pode compartilhar a análise ou o painel com usuários ou grupos.
+ - Para compartilhar um painel, é necessário publicá-lo primeiro.
+ - Usuários que visualizam o painel também podem ver os dados subjacentes.
+
+
+==================================================================================
+
+AWS Lake Formation
+Data lake = lugar centralizado para armazenar todos os seus dados com fins analíticos.
+Serviço totalmente gerenciado que facilita a criação de um data lake em poucos dias.
+Descubra, limpe, transforme e ingira dados em seu Data Lake.
+Automatiza muitas etapas manuais complexas (coleta, limpeza, movimentação, catalogação de dados...) e deduplica (usando ML Transforms).
+Combina dados estruturados e não estruturados no data lake.
+Modelos de origem prontos para S3, RDS, Bancos de Dados Relacionais e NoSQL...
+Controle de Acesso detalhado para suas aplicações (nível de linha e de coluna).
+Construído sobre o AWS Glue.
+
+==================================================================================
+
+Amazon Managed Streaming for Apache Kafka (Amazon MSK) 🚀
+ - Alternativa ao Amazon Kinesis.
+ - Apache Kafka totalmente gerenciado na AWS.
+ - Permite criar, atualizar e excluir clusters.
+ - O MSK cria e gerencia nós de brokers Kafka e nós do Zookeeper para você.
+ - Implante o cluster MSK na sua VPC, multi-AZ (até 3 para alta disponibilidade).
+ - Recuperação automática de falhas comuns do Apache Kafka.
+ - Dados armazenados em volumes EBS pelo tempo que você desejar.
+MSK Serverless
+  Execute Apache Kafka no MSK sem gerenciar a capacidade.
+  O MSK provisiona recursos automaticamente e escalona computação e armazenamento.
+
+Kinesis Data Streams vs. Amazon MSK
+
+Kinesis Data Streams
+Limite de tamanho da mensagem: 1 MB
+Data Streams com Shards
+Divisão e mesclagem de Shards
+Criptografia em trânsito com TLS
+Criptografia em repouso com KMS
+
+Amazon MSK
+1MB padrão, configurável para maior (ex: 10MB)
+Tópicos Kafka com Partições
+Só é possível adicionar partições a um tópico
+Criptografia em trânsito PLAINTEXT ou TLS
+Criptografia em repouso com KMS
+
+==================================================================================
+
+Amazon Rekognition
+- Encontre objetos, pessoas, texto, cenas em imagens e vídeos usando ML.
+- Análise facial e pesquisa facial para verificação de usuários, contagem de pessoas.
+- Crie um banco de dados de "rostos familiares" ou compare com celebridades.
+Casos de uso:
+- Rotulagem
+- Moderação de conteúdo
+- Detecção de texto
+- Detecção e análise facial (gênero, faixa etária, emoções…)
+- Pesquisa e verificação facial
+- Reconhecimento de celebridades
+- Análise de trajetória (ex: para análise de jogos esportivos)
+
+Amazon Rekognition – Moderação de Conteúdo
+- Detecta conteúdo inapropriado, indesejado ou ofensivo (imagens e vídeos).
+- Usado em mídias sociais, mídia de transmissão, publicidade e e-commerce para criar uma experiência de usuário mais segura.
+- Defina um limite mínimo de confiança para itens que serão sinalizados.
+- Sinalize conteúdo sensível para análise manual no Amazon Augmented AI (A2I).
+- Ajuda a cumprir regulamentos.
+
+Amazon Transcribe
+- Converte automaticamente fala em texto.
+- Utiliza um processo de aprendizado profundo chamado reconhecimento automático de fala (ASR) para converter fala em texto de forma rápida e precisa.
+- Remove automaticamente Informações Pessoais Identificáveis (PII) usando Redação.
+- Suporta Identificação Automática de Idioma para áudios multilíngues.
+- Casos de uso:
+  - Transcrever chamadas de atendimento ao cliente.
+  - Automatizar legendas e subtítulos.
+  - Gerar metadados para ativos de mídia e criar um arquivo totalmente pesquisável.
+
+
+Amazon Polly
+- Converte texto em fala realista usando aprendizado profundo.
+- Permite criar aplicações que falam.
+
+Amazon Polly – Lexicon & SSML
+- Personalize a pronúncia das palavras com lexicons de pronúncia.
+- Palavras estilizadas: St3ph4ne => "Stephane"
+- Siglas: AWS => "Amazon Web Services"
+- Faça o upload dos lexicons e use-os na operação SynthesizeSpeech.
+- Gere fala a partir de texto simples ou de documentos marcados com SSML (Speech Synthesis Markup Language) – permite maior personalização:
+  - enfatizar palavras ou frases específicas,
+  - usar pronúncia fonética,
+  - incluir sons de respiração, sussurros,
+  - usar o estilo de fala Newscaster.
+  
+
+Amazon Translate
+- Tradução de linguagem natural e precisa.
+- O Amazon Translate permite localizar conteúdo — como sites e aplicativos — para usuários internacionais, e traduzir facilmente grandes volumes de texto 
+de forma eficiente.
+==================================================================================
+
+Amazon Comprehend
+- Para Processamento de Linguagem Natural (NLP)
+- Serviço totalmente gerenciado e sem servidor
+- Usa aprendizado de máquina para encontrar insights e relações no texto
+- Detecta o idioma do texto
+- Extrai frases-chave, lugares, pessoas, marcas ou eventos
+- Compreende se o texto é positivo ou negativo
+- Analisa o texto utilizando tokenização e partes da fala
+- Organiza automaticamente uma coleção de arquivos de texto por tópico
+- Exemplos de casos de uso:
+  - Analisar interações com clientes (e-mails) para identificar o que leva a uma experiência positiva ou negativa
+  - Criar e agrupar artigos por tópicos que o Comprehend descobrirá
+  
+
+Amazon Comprehend Medical
+- O Amazon Comprehend Medical detecta e retorna informações úteis em textos clínicos não estruturados:
+- Notas dos médicos
+- Sumários de alta
+- Resultados de exames
+- Notas de caso
+- Utiliza NLP para detectar Informações de Saúde Protegidas (PHI) – API DetectPHI
+- Armazene seus documentos no Amazon S3, analise dados em tempo real com Kinesis Data Firehose, ou use Amazon Transcribe para transcrever narrativas de 
+pacientes em texto que pode ser analisado pelo Amazon Comprehend Medical.
+
+
+==================================================================================
+
+Amazon SageMaker
+- Serviço totalmente gerenciado para desenvolvedores / cientistas de dados criarem modelos de Machine Learning (ML)
+- Normalmente, é difícil realizar todos os processos em um único local e provisionar servidores
+- Processo de Machine Learning (simplificado): prever sua pontuação em um exame
+
+==================================================================================
+
+Amazon Forecast
+Serviço totalmente gerenciado que usa Machine Learning para fornecer previsões altamente precisas
+Exemplo: prever as vendas futuras de uma capa de chuva
+50% mais preciso do que olhar os dados em si
+Reduz o tempo de previsão de meses para horas
+Casos de uso: Planejamento de Demanda de Produto, Planejamento Financeiro, Planejamento de Recursos
+
+==================================================================================
+
+Amazon Kendra
+Serviço de pesquisa de documentos totalmente gerenciado, impulsionado por Machine Learning
+Extrai respostas dentro de um documento (texto, pdf, HTML, PowerPoint, MS Word, FAQs…)
+Capacidades de pesquisa em linguagem natural
+Aprende com interações/feedback do usuário para promover resultados preferenciais (Aprendizado Incremental)
+Capacidade de ajustar manualmente os resultados da pesquisa (importância dos dados, frescor, personalizados
+
+==================================================================================
+
+Amazon Personalize
+Serviço totalmente gerenciado de ML para criar aplicativos com recomendações personalizadas em tempo real
+Exemplo: recomendações personalizadas de produtos/reclassificação, marketing direto personalizado
+Exemplo: O usuário comprou ferramentas de jardinagem, forneça recomendações sobre o próximo item a ser comprado
+Mesma tecnologia usada pelo Amazon.com
+Integra-se a sites existentes, aplicativos, SMS, sistemas de marketing por e-mail, etc.
+Implementação em dias, não meses (você não precisa construir, treinar e implantar soluções de ML)
+Casos de uso: lojas de varejo, mídia e entretenimento...
+
+==================================================================================
+
+Amazon Textract
+- Extrai automaticamente texto, escrita manual e dados de quaisquer documentos digitalizados usando IA e ML
+- Extrai dados de formulários e tabelas
+- Lê e processa qualquer tipo de documento (PDFs, imagens, …)
+- Casos de uso:
+  - Serviços financeiros (ex.: faturas, relatórios financeiros)
+  - Saúde (ex.: registros médicos, reivindicações de seguro)
+  - Setor público (ex.: formulários fiscais, documentos de identidade, passaportes)
+
+==================================================================================
+
+AWS Machine Learning - Resumo
+- Rekognition: detecção de faces, rotulagem, reconhecimento de celebridades
+- Transcribe: áudio para texto (ex.: legendas)
+- Polly: texto para áudio
+- Translate: traduções
+- Lex: construir bots conversacionais – chatbots
+- Connect: centro de contato na nuvem
+- Comprehend: processamento de linguagem natural
+- SageMaker: aprendizado de máquina para desenvolvedores e cientistas de dados
+- Forecast: criar previsões altamente precisas
+- Kendra: mecanismo de busca com poder de ML
+- Personalize: recomendações personalizadas em tempo real
+- Textract: detectar texto e dados em documentos
+==================================================================================
+
+
+
+
+
