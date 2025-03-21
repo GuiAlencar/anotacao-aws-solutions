@@ -1678,6 +1678,8 @@ Backup & Restore
 	* restaurar backups após evento
 	* custo baixo $
 
+Essa é a abordagem de DR de menor custo que simplesmente envolve a criação de backups online de todos os dados e aplicativos.
+
 ------------------------------------------------------
 
 Pilot Light
@@ -1691,6 +1693,7 @@ Uma versão reduzida da aplicação está sempre em execução na nuvem.
 Útil para o núcleo crítico (pilot light).
 Muito semelhante ao método de Backup e Restauração.
 Mais rápido do que Backup e Restauração, pois os sistemas críticos já estão ativos.
+Com uma estratégia pilot light, um mínimo básico de serviços está em execução e o restante só é colocado online durante uma situação de recuperação de desastres.
 
 ------------------------------------------------------
 
@@ -1705,6 +1708,9 @@ Essa solução atende ao requisito de um RTO de cinco minutos com uma instância
 O sistema completo está ativo e em funcionamento, mas com tamanho mínimo.
 Em caso de desastre, é possível escalar para a carga de produção.
 
+O termo warm standby é usado para descrever um cenário de DR no qual uma versão reduzida de um ambiente totalmente funcional está sempre em execução na nuvem. Uma solução de warm standby estende os elementos e a preparação da pilot light
+Isso diminui ainda mais o tempo de recuperação porque alguns serviços estão sempre em execução. Ao identificar seus sistemas críticos para os negócios, você pode duplicar totalmente esses sistemas na AWS e mantê-los sempre ativos.
+
 ------------------------------------------------------
 
 Multi-site active/active
@@ -1716,6 +1722,7 @@ Multi-site active/active
 
 RTO muito baixo (em minutos ou segundos) – extremamente caro.
 Escala completa de produção está em execução tanto na AWS quanto no ambiente On-Premise.
+Uma solução multissite é executada na AWS, bem como em sua infraestrutura local existente em uma configuração ativa-ativa.
 
 ------------------------------------------------------
 
