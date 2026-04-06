@@ -672,6 +672,54 @@ as vpns permitem a comunicação privada, mas ainda atravessam a internet públi
 direct connect é: rápido, seguro, confiável e capaz de obter um rendimento massivo
 DICA: vpn caindo e precisa reduzir custos de rede, aumentar o rendimento da sua rede é direct connect
 
+--------------
+
+Transit VIF
+Uma Transit VIF (Virtual Interface de trânsito) é um tipo de interface do AWS Direct Connect usada para conectar seu ambiente on-premises a um AWS Transit Gateway.
+Transit VIF = caminho para ligar seu data center ao Transit Gateway via Direct Connect
+
+Quando você cria uma conexão Direct Connect, ela é só o “cabo”.
+
+Para trafegar dados, você precisa criar uma VIF (Virtual Interface).
+
+Existem tipos diferentes:
+
+1. Private VIF
+Conecta direto a uma VPC
+Usa Virtual Private Gateway (VGW)
+Mais antigo / menos escalável
+
+2. Transit VIF
+Conecta ao Transit Gateway
+Usa Direct Connect Gateway
+Permite acessar múltiplas VPCs e regiões
+
+Como funciona a arquitetura
+
+On-premises
+    │
+Direct Connect
+    │
+Transit VIF
+    │
+Direct Connect Gateway
+    │
+Transit Gateway
+    │
+VPCs (várias)
+-------------------------
+
+Por que usar Transit VIF?
+
+Você usa quando precisa:
+
+Conectar on-premises a várias VPCs
+Conectar a múltiplas regiões
+Ter uma arquitetura mais escalável
+Integrar com Transit Gateway
+
+
+
 ==================================================================================
 ESCALABILIDADE E ALTA DISPONIBILIDADE
 * Escalabilidade significa que uma aplicação/sistema pode lidar com cargas maiores através da adaptação.
