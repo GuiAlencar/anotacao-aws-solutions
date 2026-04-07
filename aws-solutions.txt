@@ -2523,6 +2523,15 @@ AWS Machine Learning - Resumo
 - Textract: detectar texto e dados em documentos
 ==================================================================================
 
+AWS STEP FUNCTIONS
+simplifica complexidade
+• Construa workflows visuais serverless para orquestrar suas funções Lambda
+• Representa o fluxo como uma máquina de estados em JSON
+• Recursos: sequência, paralelismo, condições, timeouts, tratamento de erros…
+• Tempo máximo de execução de até 1 ano
+• Possibilidade de implementar etapas com aprovação humana
+• Ao encadear funções Lambda usando Step Functions, fique atento à latência adicional na passagem das chamadas
+
 
 
 
