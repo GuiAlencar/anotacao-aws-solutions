@@ -1694,6 +1694,298 @@ converte mídias para diversos dispositivos
 
 ==================================================================================
 API GATEWAY
+Ajuda a expor AWS Lambda, HTTP e serviços da AWS como uma API
+Versionamento de API, autorização, gerenciamento de tráfego (chaves de API, limites de taxa/throttling), alta escalabilidade, serverless, transformações de requisição/resposta, especificação OpenAPI, CORS
+
+Limites importantes:
+• Timeout de 29 segundos
+• Tamanho máximo de payload de 10 MB
+
+API Gateway – Estágios de Implantação (Deployment Stages)
+
+• As alterações da API são implantadas em “estágios” (quantos você quiser)
+• Você pode usar os nomes que quiser para os estágios (dev, test, prod)
+• Os estágios podem ser revertidos (rollback), pois o histórico de implantações é mantido
+
+API Gateway – Integrações
+
+• HTTP
+• Expõe endpoints HTTP no backend
+• Exemplo: API HTTP interna on-premises, Application Load Balancer…
+• Por quê? Adicionar rate limiting, cache, autenticação de usuários, chaves de API, etc.
+
+• Função Lambda
+• Invoca uma função AWS Lambda
+• Forma fácil de expor uma API REST baseada em AWS Lambda
+
+• Serviços AWS
+• Expõe qualquer API da AWS através do API Gateway
+• Exemplo: iniciar um workflow do AWS Step Functions, enviar uma mensagem para o Amazon SQS
+• Por quê? Adicionar autenticação, publicar publicamente, controle de taxa (rate control)…
+
+
+ATENÇÃO:
+
+Problema: API Gateway na frente do S3
+
+Cliente → Amazon API Gateway
+API Gateway → (proxy) → Amazon S3
+Upload do arquivo passa pelo API Gateway
+
+Problema principal:
+
+O API Gateway tem limite de 10 MB de payload
+Ou seja: arquivos maiores vão falhar
+
+Além disso:
+
+Mais latência (requisição passa por mais um serviço)
+Mais custo
+Não é eficiente para upload de arquivos grandes
+
+Solução correta (Best Practice)
+
+Cliente → Amazon API Gateway
+API Gateway chama → AWS Lambda
+Lambda gera uma URL pré-assinada (pre-signed URL) do Amazon S3
+Lambda retorna essa URL para o cliente
+Cliente faz upload direto para o S3 usando essa URL
+
+------------
+API Gateway – Tipos de Endpoint
+
+Edge-Optimized (padrão)
+• Indicado para clientes distribuídos globalmente
+• As requisições passam pelos Edge Locations do Amazon CloudFront (melhora a latência)
+• O Amazon API Gateway continua rodando em uma única região
+
+Resumo: melhor escolha para APIs públicas com usuários no mundo todo
+------------
+Regional
+
+• Indicado para clientes dentro da mesma região
+• A requisição vai direto para o Amazon API Gateway (sem CloudFront automaticamente)
+• Você pode integrar manualmente com o Amazon CloudFront
+
+Vantagem:
+Mais controle sobre cache, headers, comportamento da CDN
+
+Resumo: melhor quando você quer controle fino da distribuição
+------------
+Private
+
+• A API só pode ser acessada dentro da sua VPC
+• Usa um VPC Endpoint (Interface / ENI) via AWS PrivateLink
+• Controle de acesso via Resource Policy
+
+Dica rápida de prova
+Global → Edge-Optimized
+Controle + CloudFront manual → Regional
+Interno / VPC → Private
+
+------------
+
+API Gateway – Cache de Respostas
+
+• O cache reduz o número de chamadas ao backend (melhora performance e reduz custo)
+• TTL (tempo de vida) padrão: 300 segundos (5 minutos)
+
+Mín: 0s
+Máx: 3600s (1 hora)
+
+Como funciona
+
+• O cache é configurado por stage no Amazon API Gateway
+• É possível sobrescrever configurações de cache por método específico (endpoint)
+
+👉 Exemplo:
+
+/produtos pode ter cache de 300s
+/pedidos pode ter cache desativado
+
+----------------
+
+Invalidação de cache
+
+• O cliente pode invalidar o cache enviando o header:
+
+Cache-Control: max-age=0
+
+⚠️ Mas:
+
+Precisa de autorização adequada (IAM)
+🧹 Limpeza total do cache
+
+• É possível dar um flush completo no cache
+👉 Isso remove tudo imediatamente (útil após deploy ou atualização de dados)
+
+------------------
+
+Segurança
+
+• Opção de criptografia do cache disponível
+
+Capacidade
+
+• Tamanho do cache configurável:
+
+De 0.5 GB até 237 GB
+
+🧠 Dicas de prova (SAP-C02)
+✔ Use cache quando:
+Muitas leituras repetidas
+Backend caro/lento
+
+❌ Evite cache quando:
+Dados mudam frequentemente
+Precisa de dados em tempo real
+
+------------------
+API Gateway – Erros
+
+🔴 Erros 4xx (Client Error)
+
+Indicam problemas na requisição do cliente
+
+• 400 – Bad Request
+👉 Requisição inválida (parâmetros errados, payload mal formatado)
+
+• 403 – Access Denied
+👉 Acesso negado (IAM, authorizer ou bloqueio via AWS WAF)
+
+• 429 – Too Many Requests
+👉 Limite excedido (throttling ou quota configurada no Amazon API Gateway)
+-------------
+🔵 Erros 5xx (Server Error)
+
+Indicam problemas no backend / integração
+
+• 502 – Bad Gateway
+👉 Muito comum com AWS Lambda
+
+Resposta em formato incompatível (ex: não segue o padrão proxy)
+Pode ocorrer também sob alta carga
+
+• 503 – Service Unavailable
+👉 Serviço indisponível (backend fora ou sobrecarregado)
+
+• 504 – Integration Failure (Timeout)
+👉 Timeout na integração
+Exemplo: endpoint demorou demais para responder
+
+---------------
+⏱️ Limite importante
+• O Amazon API Gateway tem timeout máximo de 29 segundos
+👉 Se o backend não responder nesse tempo → erro 504
+
+🧠 Dicas de prova (muito importante)
+• 502 + Lambda → provavelmente problema no formato da resposta
+• 429 → throttling / limite de requisições
+• 504 + 29s → timeout do API Gateway
+• 403 + WAF → bloqueio de segurança
+
+---------------------------------------------------------------
+
+API Gateway – Segurança
+
+🔐 Certificados SSL + Domínio customizado
+
+• Você pode carregar certificados SSL (HTTPS) no Amazon API Gateway
+• Usar o Amazon Route 53 para criar um CNAME/domínio personalizado
+
+👉 Exemplo:
+api.seudominio.com em vez de URL padrão da AWS
+
+----------
+Resource Policy (tipo S3 Bucket Policy)
+
+• Define quem pode acessar a API
+• Muito parecido com policy do Amazon S3
+
+👉 Permite restringir acesso por:
+Contas AWS específicas
+IP ou blocos CIDR
+VPC ou VPC Endpoints
+----------
+
+IAM Execution Role
+
+• O Amazon API Gateway assume uma role IAM para executar ações
+
+👉 Exemplo:
+Invocar AWS Lambda
+Acessar outros serviços AWS
+
+----------
+CORS (Cross-Origin Resource Sharing)
+
+• Mecanismo de segurança do navegador
+• Controla quais domínios podem chamar sua API
+
+👉 Importante para aplicações web (frontend → backend)
+
+----------
+🧠 Dicas de prova (SAP-C02)
+
+• 🔒 Restringir por IP / VPC → Resource Policy
+• 🔑 Permissões para serviços AWS → IAM Role (Execution Role)
+• 🌍 Domínio customizado → Route 53 + SSL
+• 🌐 Problema de frontend bloqueado → CORS
+
+---------------------------------------------------------------
+
+API Gateway – Autenticação
+
+IAM-based access (AWS_IAM)
+
+• Usa permissões do AWS Identity and Access Management
+• Ideal para acesso interno entre serviços AWS
+
+👉 Como funciona:
+O cliente assina a requisição usando SigV4 (Signature Version 4)
+As credenciais IAM vão nos headers
+
+👉 Uso típico:
+Comunicação entre serviços (ex: EC2 → API Gateway)
+---------------
+
+Lambda Authorizer (Custom Authorizer)
+
+• Usa uma função AWS Lambda para autenticação
+
+👉 Permite validar:
+OAuth
+SAML
+Tokens de terceiros (JWT customizado, etc.)
+
+👉 Fluxo:
+Cliente envia token
+Lambda valida
+Retorna policy (Allow/Deny)
+
+👉 Uso típico:
+Integração com sistemas externos de autenticação
+--------------
+
+Cognito User Pools
+
+• Usa o Amazon Cognito para autenticação de usuários
+
+👉 Fluxo:
+Cliente faz login no Cognito
+Recebe um token (JWT)
+Envia o token para o Amazon API Gateway
+O API Gateway valida automaticamente o token
+
+👉 Uso típico:
+Apps web/mobile com login de usuário
+-------------
+
+Dicas de prova (muito importante)
+• 🔒 Acesso entre serviços AWS → IAM (AWS_IAM)
+• 🔑 Autenticação customizada → Lambda Authorizer
+• 👤 Login de usuários (JWT pronto) → Cognito User Pools
+
 
 ==================================================================================
 Cognito -> Com o Amazon Cognito, você pode adicionar recursos de inscrição e login de usuários e controlar o acesso a suas aplicações móveis e da Web.
