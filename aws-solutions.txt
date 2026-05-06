@@ -2824,6 +2824,81 @@ simplifica complexidade
 • Possibilidade de implementar etapas com aprovação humana
 • Ao encadear funções Lambda usando Step Functions, fique atento à latência adicional na passagem das chamadas
 
+==================================================================================
+
+AWS CloudTrail
+
+Fornece governança, conformidade e auditoria para sua conta AWS
+O CloudTrail é habilitado por padrão!
+Permite obter um histórico de eventos/chamadas de API realizadas dentro da sua conta AWS por meio de:
+	Console
+	SDK
+	CLI
+	Serviços AWS
+É possível enviar os logs do CloudTrail para o CloudWatch Logs ou para o S3
+Uma trilha (trail) pode ser aplicada a todas as regiões (padrão) ou a apenas uma região específica
+Se um recurso for deletado na AWS, investigue primeiro o CloudTrail!
+
+---------------------------
+
+Eventos do AWS CloudTrail
+
+Eventos de Gerenciamento (Management Events)
+Operações realizadas em recursos da sua conta AWS
+Exemplos:
+	Configuração de segurança (IAM AttachRolePolicy)
+	Configuração de regras para roteamento de dados (Amazon EC2 CreateSubnet)
+	Configuração de logs (AWS CloudTrail CreateTrail)
+Por padrão, as trails são configuradas para registrar eventos de gerenciamento
+É possível separar:
+	Read Events: eventos de leitura que não modificam recursos
+	Write Events: eventos de escrita que podem modificar recursos
+
+---------------------------
+
+Eventos de Dados (Data Events)
+
+Por padrão, eventos de dados não são registrados, pois geram um volume muito alto de operações
+Atividade em nível de objeto no Amazon S3
+	Exemplos: GetObject, DeleteObject, PutObject
+	Também é possível separar eventos de leitura e escrita
+Atividade de execução de funções AWS Lambda
+	Exemplo: API Invoke
+
+---------------------------
+
+AWS CloudTrail Insights
+
+Habilite o CloudTrail Insights para detectar atividades incomuns na sua conta AWS, como:
+	Provisionamento incorreto de recursos
+	Atingimento de limites de serviços
+	Picos repentinos de ações do AWS IAM
+	Falhas ou interrupções em atividades periódicas de manutenção
+O CloudTrail Insights analisa eventos normais de gerenciamento para criar uma linha de base (baseline) de comportamento
+Depois, ele analisa continuamente eventos de escrita (write events) para detectar padrões incomuns
+As anomalias aparecem no console do CloudTrail
+O evento também é enviado para o Amazon S3
+Um evento do EventBridge é gerado para necessidades de automação
+
+---------------------------
+
+Retenção de Eventos no AWS CloudTrail
+
+Os eventos ficam armazenados por 90 dias no CloudTrail
+Para manter os eventos por mais tempo, envie os logs para o Amazon S3 e utilize o Amazon Athena para consultas e análises dos dados
+
+==================================================================================
+
+
+
+
+
+
+
+
+
+
+
 
 
 
