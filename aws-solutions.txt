@@ -2889,8 +2889,22 @@ Para manter os eventos por mais tempo, envie os logs para o Amazon S3 e utilize 
 
 ==================================================================================
 
+AWS CloudHSM
 
+O AWS CloudHSM é um módulo de segurança de hardware (HSM) baseado em nuvem:
 
+* Gere e utilize suas próprias chaves de criptografia na nuvem da AWS
+* O CloudHSM é executado dentro da sua Amazon VPC
+* Utiliza HSMs validados no padrão FIPS 140-2 nível 3
+* É um serviço gerenciado e escala automaticamente
+* Você mantém controle total das suas chaves de criptografia — você controla o acesso (e a AWS não tem visibilidade das suas chaves)
+
+Casos de uso do AWS CloudHSM
+
+* Descarregar (offload) o processamento de SSL/TLS dos servidores web
+* Proteger chaves privadas de uma autoridade certificadora (CA) emissora
+* Armazenar a chave mestra para o Transparent Data Encryption (TDE) do Oracle DB
+* Utilizar como repositório de chaves personalizado para o AWS KMS — mantendo controle do HSM que protege as chaves mestras
 
 
 
