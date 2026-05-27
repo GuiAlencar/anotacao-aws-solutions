@@ -1367,6 +1367,61 @@ Weighted routing policy (Política de roteamento ponderado): use para encaminhar
     * você pode definir notificações do SNS para alertá-lo sobre falhas nas verificações de integridade.
 
 
+--------------------------------
+
+Route 53 – DNS Híbrido
+
+Por padrão, o Route 53 Resolver responde automaticamente a consultas DNS para:
+  - Nomes de domínio locais de instâncias EC2
+  - Registros em Zonas Hospedadas Privadas (Private Hosted Zones)
+  - Registros em servidores de nomes públicos (public Name Servers)
+
+DNS híbrido – resolução de consultas DNS entre a VPC (Route 53 Resolver) e suas redes (outros resolvedores DNS)
+
+As redes podem ser:
+  - A própria VPC / VPC com peering
+  - Rede on-premises (conectada por meio do Direct Connect ou AWS VPN)
+
+---
+
+Route 53 – Endpoints do Resolver
+
+Endpoint de Entrada (Inbound Endpoint)
+  - Os resolvedores DNS da sua rede podem encaminhar consultas DNS para o Route 53 Resolver
+  - Permite que seus resolvedores DNS resolvam nomes de domínio de recursos da AWS (ex.: instâncias EC2) e registros em Zonas Hospedadas Privadas do Route 53
+
+Endpoint de Saída (Outbound Endpoint)
+  - O Route 53 Resolver encaminha condicionalmente consultas DNS para seus resolvedores DNS
+  - Utilize regras do Resolver (Resolver Rules) para encaminhar consultas DNS para seus resolvedores DNS
+
+- Associado a uma ou mais VPCs na mesma região da AWS
+- Deve ser criado em duas zonas de disponibilidade (AZs) para alta disponibilidade
+- Cada endpoint suporta até 10.000 consultas por segundo por endereço IP
+
+---
+
+
+Route 53 – Regras do Resolver (Resolver Rules)
+
+Controlam quais consultas DNS serão encaminhadas para os resolvedores DNS da sua rede
+Regras de Encaminhamento Condicional (Forwarding Rules)
+  - Encaminham consultas DNS para um domínio específico e todos os seus subdomínios para endereços IP de destino
+
+Regras de Sistema (System Rules)
+  - Permitem sobrescrever seletivamente o comportamento definido nas regras de encaminhamento
+  - Exemplo: não encaminhar consultas DNS para um subdomínio como acme.example.com
+
+Regras de Sistema Definidas Automaticamente (Auto-defined System Rules)
+  - Definem como consultas DNS para determinados domínios são resolvidas
+  - Exemplo: domínios internos da AWS e Zonas Hospedadas Privadas (Private Hosted Zones)
+
+Se várias regras corresponderem, o Route 53 Resolver escolhe a correspondência mais específica
+
+As Resolver Rules podem ser compartilhadas entre contas usando o AWS RAM (Resource Access Manager)
+  - Possibilita gerenciamento centralizado em uma única conta
+
+Permitem enviar consultas DNS de múltiplas VPCs para o endereço IP de destino definido na regra
+
 ==================================================================================
 CloudFront
 
