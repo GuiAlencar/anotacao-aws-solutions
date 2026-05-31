@@ -109,12 +109,37 @@ documento de política do IAM
 * grupos, funções
   |----> usuários (alerta: é uma boa prática o usuário herdar a política do grupo para ficar fácil de gerenciar)
 
-identity policy vs resource policy
+----------------------------------------
 
-identity policy: user -> política de inline 1 para 1 -> role, não conseguimos aplicar a inline para um grupo por que afeta mais de um.
-		 aws manged ou customer manage por ser aplicada para um user para um grupo e para role
+tipos de politicas na aws
 
-resource policy: aplica para um recurso, exemplo: s3, ec2, o guilherme pode fazer upload no s3 ou um shutdown no ec2
+identity-based policies: usuários, grupos de usuários ou iam role
+	possui duas categorias:
+		politicas gerenciadas: pela aws e/ou pelo cliente
+		politicas "inline": politicas adicionadas diretamente no usuário, grupo de usuário e/ou iam role
+
+resource-based policies: permissões que realizam o controle em um determinado recurso, como s3, kms entre outros.
+	permite configurações de acessos "cross account"
+	utiliza-se de um "principal" para liberação/bloqueio de acessos.
+
+permissions boundaries: permissions boundaries policies são recursos avançados que você consegue determinar o máximo de permissões que um determinada identity-based policy pode possuir para uma identidade do IAM. Quando configurado, a identidade pode utilizar apenas as permissões que estiverem configuradas na identity-based policy e permissions boudaries.
+	
+
+organizations SCPs: servisse control policies são politicas configuradas para o gerenciamento de permissions em seu aws organizations de forma centralizada.
+	oferece o controle máximo de permissões para todas as contas em sua organização
+	ajuda a aplicar "guidelines" e/ou "guardrails" para controle de acessos, definindo limites
+	abrange todas as contas e identidades (incluindo usuário root)
+	SCPs sozinhos não são suficientes. Identity-based e resource-based policies são necessários para liberação de acessos
+	adota por padrão a estratégia de deny list
+	
+access control lists (ACLs): access control list (ACLs) são politicas de serviços que permitem realizar o controle dos "principals" em outras contas aws que podem acessar um determinado recurso
+	ACLs não utilizam politicas em formato JSON
+	s3, waf e vpc são exemplos de recursos que permitem o uso de ACLs
+
+session policies: são politicas avançadas que te permitem informar (como parâmetros) politicas para uma sessão de um role ou usuário federado
+	são intercessões entre identity-based policies para uma identidade e session policies
+	podem ter como origem, resource-based policies
+
 
 ==================================================================================
 
