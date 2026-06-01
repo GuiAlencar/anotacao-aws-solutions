@@ -140,6 +140,17 @@ session policies: são politicas avançadas que te permitem informar (como parâ
 	são intercessões entre identity-based policies para uma identidade e session policies
 	podem ter como origem, resource-based policies
 
+------------------
+RBAC
+- role-based access control (RBAC) é uma estratégia de autorização tradicional no IAM baseada em funções.
+- As estratégias são definidas em pessoas e suas respectivas atribuições de trabalho (FINOPS, sysops, dba, etc)
+- A aws disponibiliza diferentes políticas gerenciadas baseadas em funções
+
+ABAC
+- attribute-based access control (ABAC) é um estratégia de autorização baseada em atributos (tags).
+- os atributos (tags) podem ser associados a entidades do IAM (como usuário e/ou funções) e recursos aws.
+- ABAC disponibiliza grandes possibilidades de controles
+	vantagens: permissões dimensionadas com inovação: não é mais necessário que um administrador atualize as políticas existentes para permitir o acesso a novos recursos
 
 ==================================================================================
 
